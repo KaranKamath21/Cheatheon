@@ -90,7 +90,7 @@ const QuestionPage = () => {
                     </Link>
                 </div>
 
-                <h1 className="h-class">Question {questionId} Details</h1>
+                <h1 className="h-class">Question Details</h1>
 
                 {loading ? (
                     <div className="loading-container">
