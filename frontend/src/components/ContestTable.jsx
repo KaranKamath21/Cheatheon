@@ -15,7 +15,7 @@ const ContestTable = () => {
     useEffect(() => {
         const fetchContests = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/contests');
+                const response = await axios.get('https://cheatheon.onrender.com/api/contests');
                 
                 // Parse contest_date as Date objects and sort
                 const sortedData = response.data.sort((a, b) => {

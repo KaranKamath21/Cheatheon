@@ -20,7 +20,7 @@ const QuestionPage = () => {
     useEffect(() => {
         const fetchQuestionData = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/questions/${questionId}`);
+                const response = await axios.get(`https://cheatheon.onrender.com/api/questions/${questionId}`);
                 console.log('API Response:', response.data); // Add this for debugging
                 setQuestionData(response.data);
             } catch (error) {
