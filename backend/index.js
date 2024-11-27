@@ -6,11 +6,7 @@ require('dotenv').config();
 const app = express();
 
 // Apply CORS middleware
-app.use(cors(
-    {
-        origin: 'https://cheatheon.vercel.app/'
-    }
-));
+app.use(cors());
 
 // Middleware
 app.use(express.json());
