@@ -9,11 +9,11 @@ This README will guide you through setting up and running the project locally.
 ## Project Structure
 
 Cheatheon/
-├── backend/                # Node.js backend
-├── frontend/               # React frontend
-├── data/                   # Python scripts for data acquisition and processing
-├── .gitignore              # Git ignore configuration
-└── README.md               # This file
+├── backend/                # Node.js backend  
+├── frontend/               # React frontend  
+├── data/                   # Python scripts for data acquisition and processing  
+├── .gitignore              # Git ignore configuration  
+└── README.md               # This file  
 
 ---
 
@@ -63,7 +63,7 @@ Cheatheon/
 3.	Create a `.env file` in the root of the frontend directory with the following content:
    ```console
    MONGO_URL=<your-mongo-db-url>
-   PORT=5000  # You can change the port if needed
+   PORT=3000  # You can change the port if needed
    ```
 
 4. Start the frontend server:
@@ -96,10 +96,10 @@ Cheatheon/
    python orchestration.py
    ```
 
-This script will:
-	•	Fetch data from LeetCode APIs
-	•	Process the data using copy detection algorithms
-	•	Insert the processed data into MongoDB
+This script will:  
+	•	Fetch data from LeetCode APIs  
+	•	Process the data using copy detection algorithms  
+	•	Insert the processed data into MongoDB  
 No additional steps are needed for data processing, just running this script will do everything automatically.
 
 
