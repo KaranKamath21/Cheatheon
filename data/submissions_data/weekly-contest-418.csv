@@ -1,0 +1,5032 @@
+username,userslug,contest_rank,question_id,language,code,submission_id
+fjzzq2002,fjzzq2002,1,3561,cpp,"#pragma GCC optimize(""Ofast"",""unroll-loops"",""-ffast-math"",""march=native"")
+#include <bits/stdc++.h>
+#include <vector>
+#include <sstream>
+#include <iostream>
+#include <sys/wait.h>
+#include <unistd.h>
+using namespace std;
+typedef long double ld;
+#define SZ 1234567
+typedef long long ll;
+const int MOD=998244353;
+#define mp make_pair
+#define pb push_back
+#define st first
+#define nd second
+#define all(c) (c).begin(), (c).end()
+#define endl '\n'
+#define fastio ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);
+#define fi first
+#define se second
+/*
+You are maintaining a project that has n methods numbered from 0 to n - 1.
+
+You are given two integers n and k, and a 2D integer array invocations, where invocations[i] = [ai, bi] indicates that method ai invokes method bi.
+
+There is a known bug in method k. Method k, along with any method invoked by it, either directly or indirectly, are considered suspicious and we aim to remove them.
+
+A group of methods can only be removed if no method outside the group invokes any methods within it.
+
+Return an array containing all the remaining methods after removing all the suspicious methods. You may return the answer in any order. If it is not possible to remove all the suspicious methods, none should be removed.
+*/
+vector<int> rg[SZ],g[SZ];
+set<int> suspicious;
+void dfs(int u) {
+    if(suspicious.count(u)) return;
+    suspicious.insert(u);
+    for(int v : rg[u]) {
+        dfs(v);
+    }
+}
+class Solution {
+public:
+    vector<int> remainingMethods(int n, int k, vector<vector<int>>& invocations) {
+        for(int i=0;i<n;++i) {
+            rg[i].clear();
+            g[i].clear();
+        }
+        suspicious.clear();
+        for(auto &v : invocations) {
+            rg[v[0]].pb(v[1]);
+            g[v[1]].pb(v[0]);
+        }
+        dfs(k);
+        for(auto &v : invocations) {
+            int a=v[0],b=v[1];
+            if(!suspicious.count(a)&&suspicious.count(b)) {
+                suspicious.clear();
+            }
+        }
+        vector<int> res;
+        for(int i=0;i<n;++i) {
+            if(!suspicious.count(i)) {
+                res.pb(i);
+            }
+        }
+        return res;
+    }
+};",1413164245
+fjzzq2002,fjzzq2002,1,3578,cpp,"#pragma GCC optimize(""Ofast"",""unroll-loops"",""-ffast-math"",""march=native"")
+#include <bits/stdc++.h>
+#include <vector>
+#include <sstream>
+#include <iostream>
+#include <sys/wait.h>
+#include <unistd.h>
+using namespace std;
+typedef long double ld;
+#define SZ 1234567
+typedef long long ll;
+const int MOD=998244353;
+#define mp make_pair
+#define pb push_back
+#define st first
+#define nd second
+typedef pair<int,int> pii;
+#define all(c) (c).begin(), (c).end()
+#define endl '\n'
+#define fastio ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);
+#define fi first
+#define se second
+pii fix(pii s) {
+    if(s.fi>s.se) swap(s.fi,s.se);
+    return s;
+}
+class Solution {
+public:
+    vector<vector<int>> constructGridLayout(int n, vector<vector<int>>& edges) {
+        map<int,vector<int>> G;
+        map<int,int> deg;
+        for(auto e:edges) {
+            ++deg[e[0]];
+            ++deg[e[1]];
+            G[e[0]].pb(e[1]);
+            G[e[1]].pb(e[0]);
+        }
+        map<int,vector<int>> each_deg;
+        for(auto t:deg) {
+            each_deg[t.se].pb(t.fi);
+        }
+        vector<pii> ee;
+        for(auto t:edges) ee.pb(fix(mp(t[0],t[1])));
+        sort(all(ee));
+        auto chk=[&](const vector<vector<int>> &res) {
+            // list all the edges
+            if(res.size()&&res.size()*res[0].size()==n);
+            else return false;
+            // check for duplicates
+            set<int> vis;
+            for(auto t:res) for(auto u:t) vis.insert(u);
+            if(vis.size()!=n) return false;
+            // check for all edges
+            vector<pii> ge;
+            for(int i=0;i<res.size();++i) {
+                for(int j=0;j<res[0].size();++j) {
+                    if(i) ge.pb(fix(mp(res[i][j],res[i-1][j])));
+                    if(j) ge.pb(fix(mp(res[i][j],res[i][j-1])));
+                }
+            }
+            sort(all(ge));
+            if(ge==ee) return true;
+            return false;
+        };
+        auto ext=[&](vector<int> fr) {
+            vector<vector<int>> ans;
+            set<int> vis;
+            ans.pb(fr);
+            for(auto t:fr) vis.insert(t);
+            // for(auto t:fr) cout<<t<<"","";
+            // cout<<""\n"";
+            while(1) {
+                vector<int> nxt;
+                for(auto u:ans.back()) {
+                    int new_adj=-1;
+                    for(auto v:G[u]) {
+                        if(vis.find(v)==vis.end()) {
+                            new_adj=v;
+                            break;
+                        }
+                    }
+                    if(new_adj==-1) return vector<vector<int>>{};
+                    nxt.pb(new_adj);
+                    vis.insert(new_adj);
+                }
+                ans.pb(nxt);
+                if(chk(ans)) return ans;
+            }
+        };
+        if(each_deg[1].size())
+        {
+            auto w=ext({each_deg[1][0]});
+            if(w.size()) return w;
+        }
+        {
+            for(auto a:each_deg[2])
+                for(auto b:each_deg[2]) if(a^b){
+                    auto w=ext({a,b});
+                    if(w.size()) return w;
+                }
+        }
+        if(each_deg[2].size())
+        {
+            vector<int> c;
+            int x=each_deg[2][0];
+            c.pb(x);
+            set<int> vis;
+            vis.insert(x);
+            while(1) {
+                int ss=-1;
+                int s=c.back();
+                for(auto t:G[s]) {
+                    if(vis.find(t)==vis.end()&&deg[t]<=3) {
+                        ss=t;
+                        break;
+                    }
+                }
+                if(ss==-1) break;
+                c.pb(ss);
+                vis.insert(ss);
+                if(deg[c.back()]==2) break;
+            }
+            auto w=ext(c);
+            if(w.size()) return w;
+        }
+        return {};
+    }
+};
+/*
+- 1xt
+    deg 1, 2, 2, 2..., 1
+- 2xt
+    
+assume 2x>=2, chain is special
+
+deg 2
+*/",1413190215
+fjzzq2002,fjzzq2002,1,3579,cpp,"#pragma GCC optimize(""Ofast"",""unroll-loops"",""-ffast-math"",""march=native"")
+#include <bits/stdc++.h>
+#include <vector>
+#include <sstream>
+#include <iostream>
+#include <sys/wait.h>
+#include <unistd.h>
+using namespace std;
+typedef long double ld;
+#define SZ 1234567
+typedef long long ll;
+const int MOD=998244353;
+#define mp make_pair
+#define pb push_back
+#define st first
+#define nd second
+#define all(c) (c).begin(), (c).end()
+#define endl '\n'
+#define fastio ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);
+#define fi first
+#define se second
+string bin(int x) {
+    string res;
+    while(x) {
+        res.pb(x%2+48);
+        x/=2;
+    }
+    reverse(all(res));
+    return res;
+}
+int to_int(string s) {
+    int res=0;
+    for(char c : s) {
+        res=res*2+c-'0';
+    }
+    return res;
+}
+class Solution {
+public:
+    int maxGoodNumber(vector<int>& nums) {
+        vector<string> s;
+        for(int x : nums) {
+            s.pb(bin(x));
+        }
+        sort(all(s));
+        int mx=0;
+        do {
+            mx=max(mx,to_int(s[0]+s[1]+s[2]));
+        } while(next_permutation(all(s)));
+        return mx;
+    }
+};",1413160592
+fjzzq2002,fjzzq2002,1,3583,cpp,"#pragma GCC optimize(""Ofast"",""unroll-loops"",""-ffast-math"",""march=native"")
+#include <bits/stdc++.h>
+#include <vector>
+#include <sstream>
+#include <iostream>
+#include <sys/wait.h>
+#include <unistd.h>
+using namespace std;
+typedef long double ld;
+#define SZ 1234567
+typedef long long ll;
+const int MOD=998244353;
+#define mp make_pair
+#define pb push_back
+#define st first
+#define nd second
+#define all(c) (c).begin(), (c).end()
+#define endl '\n'
+#define fastio ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);
+#define fi first
+#define se second
+ll gcdmul[50005];
+ll qz[50005];
+class Solution {
+public:
+    vector<int> gcdValues(vector<int>& nums, vector<long long>& queries) {
+        int S=1;
+        for(auto t:nums) S=max(S,t+1);
+        for(int i=0;i<S;++i) {
+            gcdmul[i]=0;
+        }
+        for(auto t:nums) ++gcdmul[t];
+        for(int i=1;i<S;++i) {
+            int tt=0;
+            for(int j=i;j<S;j+=i) tt+=gcdmul[j];
+            gcdmul[i]=(ll)tt*(tt-1)/2;
+        }
+        for(int i=S-1;i>=1;--i) {
+            for(int j=i+i;j<S;j+=i) {
+                gcdmul[i]-=gcdmul[j];
+            }
+        }
+        for(int i=1;i<S;++i) {
+            qz[i]=qz[i-1]+gcdmul[i];
+        }
+        vector<int> res;
+        for(auto t:queries) {
+            res.push_back(lower_bound(qz+1,qz+S,t+1)-qz);
+        }
+        return res;
+    }
+};",1413170375
+Nishank Suresh,IceKnight1093,3,3561,cpp,"class Solution {
+public:
+    vector<int> remainingMethods(int n, int k, vector<vector<int>>& invocations) {
+        vector<vector<int>> adj(n), radj(n);
+        for (auto v : invocations) {
+            int x = v[0], y = v[1];
+            adj[x].push_back(y);
+            radj[y].push_back(x);
+        }
+        
+        vector<int> mark(n);
+        queue<int> qu; qu.push(k);
+        while (!qu.empty()) {
+            int u = qu.front(); qu.pop();
+            mark[u] = 1;
+            for (int v : adj[u]) {
+                if (!mark[v]) {
+                    mark[v] = 1;
+                    qu.push(v);
+                }
+            }
+        }
+        
+        bool good = true;
+        for (int i = 0; i < n; ++i) for (int u : adj[i]) {
+            if (!mark[i] and mark[u]) good = false;
+        }
+        
+        if (!good) {
+            vector<int> v;
+            for (int i = 0; i < n; ++i) v.push_back(i);
+            return v;
+        }
+        vector<int> v;
+        for (int i = 0; i < n; ++i) if (!mark[i]) v.push_back(i);
+        return v;
+    }
+};",1413195188
+Nishank Suresh,IceKnight1093,3,3578,cpp,"class Solution {
+public:
+    vector<vector<int>> constructGridLayout(int n, vector<vector<int>>& edges) {
+        vector<vector<int>> adj(n);
+        for (auto v : edges) {
+            int x = v[0], y = v[1];
+            adj[x].push_back(y);
+            adj[y].push_back(x);
+        }
+        
+        int src = 0;
+        for (int i = 0; i < n; ++i) if (adj[i].size() < adj[src].size())
+            src = i;
+        vector<int> dist(n, n+5);
+        queue<int> qu; qu.push(src);
+        dist[src] = 0;
+        vector<vector<int>> who(n+5);
+        while (!qu.empty()) {
+            int u = qu.front(); qu.pop();
+            who[dist[u]].push_back(u);
+            for (int v : adj[u]) {
+                if (dist[v] > 1 + dist[u]) {
+                    dist[v] = 1 + dist[u];
+                    qu.push(v);
+                }
+            }
+        }
+        
+        vector<array<int, 2>> loc(n);
+        loc[src] = {0, 0};
+        loc[who[1][0]] = {0, 1};
+        if (who[1].size() > 1) loc[who[1][1]] = {1, 0};
+        
+        int r = 0, c = 0;
+        for (int d = 2; d <= n; ++d) {
+            for (int x : who[d]) {
+                int ct = 0, mx = 0, my = 0;
+                for (int y : adj[x]) {
+                    if (dist[y] < dist[x]) {
+                        auto [X, Y] = loc[y];
+                        mx = max(mx, X); my = max(my, Y);
+                        ++ct;
+                    }
+                }
+                
+                if (ct == 2) loc[x] = {mx, my};
+                else {
+                    if (mx == 0) loc[x] = {0, my+1};
+                    else loc[x] = {mx+1, 0};
+                }
+            }
+        }
+        
+        for (auto [x, y] : loc) {
+            r = max(r, x);
+            c = max(c, y);
+        }
+        
+        vector<vector<int>> ans(r+1, vector<int>(c+1));
+        for (int i = 0; i < n; ++i) {
+            auto [x, y] = loc[i];
+            ans[x][y] = i;
+        }
+        return ans;
+    }
+};",1413191809
+Nishank Suresh,IceKnight1093,3,3579,cpp,"class Solution {
+public:
+    int maxGoodNumber(vector<int>& a) {
+        sort(begin(a), end(a));
+        int ans = 0;
+        do {
+            int cur = 0;
+            for (int x : a) {
+                bool flag = false;
+                for (int i = 10; i >= 0; --i) {
+                    if (x & (1 << i)) {
+                        flag = true;
+                    }
+                    if (flag) cur = cur*2 + ((x >> i) & 1);
+                }
+            }
+            ans = max(ans, cur);
+        } while (next_permutation(begin(a), end(a)));
+        return ans;
+    }
+};",1413161065
+Nishank Suresh,IceKnight1093,3,3583,cpp,"class Solution {
+public:
+    vector<int> gcdValues(vector<int>& a, vector<long long>& queries) {
+        const int M = 5e4 + 10;
+        vector<long long> freq(M);
+        for (int x : a) freq[x] += 1;
+        for (int i = 1; i < M; ++i) for (int j = 2*i; j < M; j += i)
+            freq[i] += freq[j];
+        vector<long long> dp(M);
+        for (int i = M-1; i >= 1; --i) {
+            dp[i] = freq[i] * (freq[i]-1)/2;
+            for (int j = 2*i; j < M; j += i) dp[i] -= dp[j];
+        }
+        for (int i = 2; i < M; ++i) dp[i] += dp[i-1];
+        
+        vector<int> res;
+        for (auto k : queries) {
+            auto it = upper_bound(begin(dp), end(dp), k);
+            res.push_back(it - begin(dp));
+        }
+        return res;
+    }
+};",1413166470
+Thomas Draper,shaletome,4,3561,python3,"class Solution:
+    def remainingMethods(self, n: int, k: int, invocations: List[List[int]]) -> List[int]:
+        g=defaultdict(set)
+        rg=defaultdict(set)
+        for a,b in invocations:
+            g[a].add(b)
+            rg[b].add(a)
+        sus=set()
+        nsus={k}
+        while nsus:
+            for v in nsus:
+                sus.add(v)
+            nnsus=set()
+            for v in nsus:
+                for nv in g[v]:
+                    if nv not in sus:
+                        nnsus.add(nv)
+            nsus=nnsus
+        # print(sus)
+        if all(v in sus for a in sus for v in rg[a]):
+            return [i for i in range(n) if i not in sus]
+        else:
+            return list(range(n))",1413166678
+Thomas Draper,shaletome,4,3578,python3,"class Solution:
+    def constructGridLayout(self, n: int, edges: List[List[int]]) -> List[List[int]]:
+        g=defaultdict(set)
+        for a,b in edges:
+            g[a].add(b)
+            g[b].add(a)
+        for v in range(n):
+            if len(g[v]) == 1:
+                ans=[v]
+                for _ in range(n-1):
+                    ans.append(next(nv for nv in g[ans[-1]] if len(ans) == 1 or nv != ans[-2]))
+                return [ans]
+        cs = [i for i in range(n) if len(g[i])==2]
+        revs=[-1]*n
+        dists=[-1]*n
+        sus=set()
+        nsus={cs[0]}
+        while nsus:
+            for v in nsus:
+                sus.add(v)
+            nnsus=set()
+            for v in nsus:
+                for nv in g[v]:
+                    if nv not in sus:
+                        nnsus.add(nv)
+                        revs[nv] = v
+                        dists[nv]=dists[v]+1
+            nsus=nnsus
+        row=[]
+        css = sorted(cs,key=dists.__getitem__)
+        v = css[1]
+        while v > -1:
+            row.append(v)
+            v = revs[v]
+        vis=set(row)
+        rows=[row]
+        for _ in range(n//len(row)-1):
+            nrow = [next(nv for nv in g[v] if nv not in vis) for v in row]
+            rows.append(nrow)
+            for v in nrow:
+                vis.add(v)
+            row=nrow
+        return rows",1413182960
+Thomas Draper,shaletome,4,3579,python3,"class Solution:
+    def maxGoodNumber(self, nums: List[int]) -> int:
+        return max(int(''.join(bin(x)[2:] for x in l), 2) for l in permutations(nums))",1413160152
+Thomas Draper,shaletome,4,3583,python3,"class Solution:
+    def gcdValues(self, nums: List[int], queries: List[int]) -> List[int]:
+        ml = max(nums)+1
+        c=Counter(nums)
+        rv=[0]*ml
+        for i in range(ml-1,0,-1):
+            vc = sum(c[x] for x in range(i,ml,i))
+            vc = vc*(vc-1)//2 - sum(rv[x] for x in range(i,ml,i))
+            rv[i]=vc
+        ps=[0]
+        for i in range(1,ml):
+            ps.append(ps[-1]+rv[i])
+        ans=[]
+        # print(ps)
+        for q in queries:
+            i = bisect.bisect_left(ps,q+1)
+            ans.append(i)
+        return ans",1413197906
+scanhex,scanhex,5,3561,cpp,"
+class Solution {
+public:
+    vector<int> remainingMethods(int n, int k, vector<vector<int>>& invocations) {
+        vector<vector<int>> g(n); 
+        for (auto& e : invocations)
+            g[e[0]].push_back(e[1]);
+        auto bfs = [&](int start) {
+            vector<int> dist(n, -1);
+            vector<int> q = {start};
+            dist[start] = 0;
+            for (int i = 0; i < q.size(); ++i) {
+                int u = q[i];
+                for (int v : g[u]) {
+                    if (dist[v] == -1) {
+                        dist[v] = dist[u] + 1;
+                        q.push_back(v);
+                    }
+                }
+            }
+            return dist;
+        };
+        auto di = bfs(k);
+        bool cant = false;
+        for (int i = 0; i < n; ++i) { 
+            if (di[i] == -1) 
+                for (int j : g[i]) 
+                    if (di[j] != -1) {
+                        cant = true;
+                    }
+        }
+        if (cant) {
+            vector<int> ans(n);
+            iota(ans.begin(), ans.end(), 0);
+            return ans;
+        }
+        vector<int> ans;
+        for (int i = 0; i < n; ++i) 
+            if (di[i] == -1) 
+                ans.push_back(i);
+        return ans;
+    }
+};
+",1413181358
+scanhex,scanhex,5,3578,cpp,"
+class Solution {
+public:
+    vector<vector<int>> constructGridLayout(int sz, vector<vector<int>>& edges) {
+        vector<int> d(sz);
+        vector<vector<int>> g(sz);
+        for (auto& e : edges) {
+            d[e[0]]++;
+            d[e[1]]++;
+            g[e[0]].push_back(e[1]);
+            g[e[1]].push_back(e[0]);
+        }
+        auto bfs = [&](int start) {
+            vector<int> dist(sz, -1);
+            vector<int> q = {start};
+            dist[start] = 0;
+            for (int i = 0; i < q.size(); ++i) {
+                int u = q[i];
+                for (int v : g[u]) {
+                    if (dist[v] == -1) {
+                        dist[v] = dist[u] + 1;
+                        q.push_back(v);
+                    }
+                }
+            }
+            return dist;
+        };
+        if (count(d.begin(), d.end(), 1) > 0) {
+            int corner = find(d.begin(), d.end(), 1) - d.begin();
+            auto di = bfs(corner);
+            vector<vector<int>> res(1, vector<int>(sz));
+            for (int i = 0; i < sz; ++i) {
+                res[0][di[i]] = i;
+            }
+            return res;
+        }
+        int corner = find(d.begin(), d.end(), 2) - d.begin();
+        vector<int> corners;
+        for (int i = 0; i < sz; ++i) 
+            if (d[i] == 2 && i != corner) corners.push_back(i);
+        auto di = bfs(corner);
+        sort(corners.begin(), corners.end(), [&](int a, int b) {
+            return di[a] < di[b];
+        });
+        int n = 1 + di[corners[0]], m = 1 + di[corners[1]];
+        assert(di[corners[2]] == n + m - 2);
+        vector<vector<int>> res(n, vector<int>(m));
+        auto di2 = bfs(corners[0]);
+        for (int i = 0; i < sz; ++i) {
+            int x = (di[i] + di2[i] - (n - 1)) / 2;
+            int y = (di[i] - di2[i] + n - 1) / 2;
+            res[y][x] = i;
+        }
+        return res;
+    }
+};
+
+",1413173516
+scanhex,scanhex,5,3579,python3,"class Solution:
+    def maxGoodNumber(self, nums: List[int]) -> int:
+        mx = 0
+        for x, y, z in [[nums[0], nums[1], nums[2]], [nums[0], nums[2], nums[1]], [nums[1], nums[0], nums[2]], [nums[1], nums[2], nums[0]], [nums[2], nums[0], nums[1]], [nums[2], nums[1], nums[0]]]:
+            bin_x = bin(x)[2:]
+            bin_y = bin(y)[2:]
+            bin_z = bin(z)[2:]
+            ss = bin_x + bin_y + bin_z
+            i = int(ss, 2)
+            if i > mx:
+                mx = i
+        return mx
+
+",1413184725
+scanhex,scanhex,5,3583,cpp,"
+using nagai = long long;
+class Solution {
+public:
+    vector<int> gcdValues(vector<int>& nums, vector<long long>& queries) {
+        const int MX = 50'050;
+        vector<int> cnt(MX);
+        vector<int> cntd(MX);
+        for (int x : nums) ++cnt[x];
+        for (int i = 1; i < MX; ++i) 
+            for (int j = i; j < MX; j += i)
+                cntd[i] += cnt[j];
+        vector<nagai> cntp(MX);
+        for (int i = MX - 1; i > 0; --i) {
+            cntp[i] = 1LL * cntd[i] * (cntd[i] - 1) / 2;
+            for (int j = i + i; j < MX; j += i) cntp[i] -= cntp[j];
+        }
+        int ptr = 0;
+        nagai sum = 0;
+        int q = queries.size();
+        vector<int> ord(q);
+        iota(ord.begin(), ord.end(), 0);
+        sort(ord.begin(), ord.end(), [&](int i, int j) { return queries[i] < queries[j]; });
+        vector<int> ans(q);
+        for (int i = 0; i < q; ++i) {
+            while (ptr + 1 < MX && sum <= queries[ord[i]]) sum += cntp[++ptr];
+            ans[ord[i]] = ptr;
+        }
+        return ans;
+    }
+};
+
+",1413198214
+PyIsTheBestLang,PyIsTheBestLang,6,3561,python3,"class Solution:
+    def remainingMethods(self, n: int, k: int, invocations: List[List[int]]) -> List[int]:
+
+        dct = [[] for _ in range(n)]
+        rev = [[] for _ in range(n)]
+
+        for i, j in invocations:
+            dct[i].append(j)
+            rev[j].append(i)
+        visit = [0] * n
+        stack = [k]
+        visit[k] = 1
+        while stack:
+            nex = []
+            for x in stack:
+                for y in dct[x]:
+                    if not visit[y]:
+                        visit[y] = 1
+                        nex.append(y)
+            stack = nex
+
+        post = [0]*n
+        for i in range(n):
+            if not visit[i]:
+                post[i] = 1
+        stack = [i for i in range(n) if post[i]]
+        while stack:
+            nex = []
+            for x in stack:
+                for y in dct[x] + rev[x]:
+                    if not post[y]:
+                        post[y] = 1
+                        nex.append(y)
+            stack = nex
+        ans = [i for i in range(n) if not (visit[i] and not post[i])]
+        return ans",1413198582
+PyIsTheBestLang,PyIsTheBestLang,6,3578,python3,"def max(a, b):
+    return a if a > b else b
+
+
+def min(a, b):
+    return a if a < b else b
+
+class Dijkstra:
+    def __init__(self):
+        return
+
+    @staticmethod
+    def get_shortest_path(dct, src: int, initial=0):
+        """"""template of shortest path by dijkstra""""""
+        #  which can to changed to be the longest path problem by opposite number
+        n = len(dct)
+        dis = [inf] * n
+        stack = [initial * n + src]
+        dis[src] = initial
+
+        while stack:
+            val = heappop(stack)
+            d, i = val // n, val % n
+            if dis[i] < d:
+                continue
+            for j, w in dct[i]:
+                assert w >= 0
+                dj = d + w
+                if dj < dis[j]:
+                    dis[j] = dj
+                    heappush(stack, dj * n + j)
+        return dis
+
+    @staticmethod
+    def get_longest_path(dct, src: int, initial=0):
+        """"""template of shortest path by dijkstra""""""
+        #  which can to changed to be the longest path problem by opposite number
+        n = len(dct)
+        dis = [inf] * n
+        stack = [(-initial, src)]
+        dis[src] = -initial
+
+        while stack:
+            d, i = heappop(stack)
+            if dis[i] < d:
+                continue
+            for j, w in dct[i]:
+                dj = d - w
+                if dj < dis[j]:
+                    dis[j] = dj
+                    heappush(stack, (dj, j))
+        return [-x for x in dis]
+
+    @staticmethod
+    def get_dijkstra_result_sorted_list(dct, src: int):
+
+        n = len(dct)
+        dis = [inf] * n
+        dis[src] = 0
+        lst = SortedList([(0, src)])
+        while lst:
+            d, i = lst.pop(0)
+            if dis[i] < d:
+                continue
+            for j, w in dct[i]:
+                dj = w + d
+                if dj < dis[j]:
+                    if dis[j] < inf:
+                        lst.discard((dis[j], j))
+                    dis[j] = dj
+                    lst.add((dj, j))
+        return dis
+
+    @staticmethod
+    def get_cnt_of_shortest_path(dct, src: int):
+        """"""number of shortest path""""""
+        n = len(dct)
+        dis = [inf] * n
+        stack = [(0, src)]
+        dis[src] = 0
+        cnt = [0] * n
+        cnt[src] = 1
+        while stack:
+            d, i = heappop(stack)
+            if dis[i] < d:
+                continue
+            for j, w in dct[i]:
+                dj = w + d
+                if dj < dis[j]:
+                    dis[j] = dj
+                    cnt[j] = cnt[i]
+                    # smaller than the shortest path
+                    heappush(stack, (dj, j))
+                elif dj == dis[j]:
+                    # equal to the shortest path
+                    cnt[j] += cnt[i]
+        return cnt, dis
+
+    @staticmethod
+    def get_dijkstra_result_limit(dct, src: int, limit, target):
+        n = len(dct)
+        dis = [inf] * n
+
+        dis[src] = 0 if src not in limit else inf
+        stack = [(dis[src], src)]
+        while stack and target:
+            d, i = heappop(stack)
+            if i in target:
+                target.discard(i)
+            if dis[i] < d:
+                continue
+            for j, w in dct[i]:
+                if j not in limit:
+                    dj = w + d
+                    if dj < dis[j]:
+                        dis[j] = dj
+                        heappush(stack, (dj, j))
+        return dis
+
+    @staticmethod
+    def get_shortest_path_from_src_to_dst(dct, src: int, dst: int):
+        n = len(dct)
+        dis = [inf] * n
+        stack = [(0, src)]
+        dis[src] = 0
+        father = [-1] * n
+        while stack:
+            d, i = heappop(stack)
+            if dis[i] < d:
+                continue
+            if i == dst:
+                break
+            for j, w in dct[i]:
+                dj = w + d
+                if dj < dis[j]:
+                    dis[j] = dj
+                    father[j] = i
+                    heappush(stack, (dj, j))
+        if dis[dst] == inf:
+            return [], inf
+        # backtrack for the path
+        path = []
+        i = dst
+        while i != -1:
+            path.append(i)
+            i = father[i]
+        return path, dis[dst]
+
+    @staticmethod
+    def gen_maximum_product_path(dct, src, dsc):
+        dis = defaultdict(lambda: inf)
+        stack = [(-1, src)]
+        dis[src] = 1
+        while stack:
+            d, i = heappop(stack)
+            d = -d
+            if dis[i] > d:
+                continue
+            for j in dct[i]:
+                dj = dct[i][j] * d
+                if dj > dis[j]:
+                    dis[j] = dj
+                    heappush(stack, (-dj, j))
+        return dis[dsc]
+
+    @staticmethod
+    def get_second_shortest_path(dct, src):
+        """"""template of strictly second shorter path""""""
+        n = len(dct)
+        dis = [[inf] * 2 for _ in range(n)]
+        dis[src][0] = 0
+        stack = [(0, src)]
+        while stack:
+            d, i = heappop(stack)
+            if dis[i][1] < d:
+                continue
+            for j, w in dct[i]:
+                if dis[j][0] > d + w:
+                    dis[j][1] = dis[j][0]
+                    dis[j][0] = d + w
+                    heappush(stack, (d + w, j))
+                elif dis[j][0] < d + w < dis[j][1]:  # if not strictly then change to d+w < dis[j][1]
+                    dis[j][1] = d + w
+                    heappush(stack, (d + w, j))
+        return dis
+
+    @staticmethod
+    def get_cnt_of_second_shortest_path(dct, src, mod=-1):
+        """"""number of strictly second shorter path""""""
+        n = len(dct)
+        dis = [[inf] * 2 for _ in range(n)]
+        dis[src][0] = 0
+        stack = [(0, src, 0)]
+        cnt = [[0] * 2 for _ in range(n)]
+        cnt[src][0] = 1
+        while stack:
+            d, i, state = heappop(stack)
+            if dis[i][1] < d:
+                continue
+            pre = cnt[i][state]
+            for j, w in dct[i]:
+                dd = d + w
+                if dis[j][0] > dd:
+                    dis[j][0] = dd
+                    cnt[j][0] = pre
+                    heappush(stack, (d + w, j, 0))
+                elif dis[j][0] == dd:
+                    cnt[j][0] += pre
+                    if mod != -1:
+                        cnt[j][0] %= mod
+                elif dis[j][0] < dd < dis[j][1]:  # if not strictly then change to d+w < dis[j][1]
+                    dis[j][1] = d + w
+                    cnt[j][1] = pre
+                    heappush(stack, (d + w, j, 1))
+                elif dd == dis[j][1]:
+                    cnt[j][1] += pre
+                    if mod != -1:
+                        cnt[j][1] %= mod
+        return dis, cnt
+
+    @staticmethod
+    def get_cnt_of_second_shortest_path_by_bfs(dct, src, mod=-1):
+        """"""number of strictly second shorter path by bfs""""""
+        n = len(dct)
+        dis = [inf] * 2 * n
+        dis[src * 2] = 0
+        stack = [(0, src, 0)]
+        cnt = [0] * 2 * n
+        cnt[src * 2] = 1
+        while stack:
+            d, i, state = heappop(stack)
+            pre = cnt[i * 2 + state]
+            for j in dct[i]:
+                dd = d + 1
+                if dd < dis[j * 2]:
+                    dis[j * 2] = dd
+                    cnt[j * 2] = pre
+                    stack.append((dd, j, 0))
+                elif dd == dis[j * 2]:
+                    cnt[j * 2] += pre
+                    cnt[j * 2] %= mod
+                elif dis[j * 2] + 1 == dd < dis[j * 2 + 1]:
+                    dis[j * 2 + 1] = dd
+                    cnt[j * 2 + 1] = pre
+                    stack.append((dd, j, 1))
+                elif dis[j * 2] + 1 == dd == dis[j * 2 + 1]:
+                    cnt[j * 2 + 1] += pre
+                    cnt[j * 2 + 1] %= mod
+        return dis, cnt
+
+    @staticmethod
+    def get_shortest_path_by_bfs(dct, src, initial=-1):
+        """"""shortest path implemention by 01 bfs """"""
+        n = len(dct)
+        dis = [initial] * n
+        stack = [src]
+        dis[src] = 0
+        while stack:
+            nex = []
+            for i in stack:
+                for j in dct[i]:
+                    if dis[j] == initial:
+                        dis[j] = dis[i] + 1
+                        nex.append(j)
+            stack = nex
+        return dis
+
+    @staticmethod
+    def get_shortest_by_bfs_inf_odd(dct, src):
+        """"""shortest odd path and even path""""""
+        n = len(dct)
+        dis = [[inf, inf] for _ in range(n)]
+        stack = deque([[src, 0]])
+        dis[0][0] = 0
+        while stack:
+            i, x = stack.popleft()
+            for j in dct[i]:
+                dd = x + 1
+                if dis[j][dd % 2] == inf:
+                    dis[j][dd % 2] = x + 1
+                    stack.append([j, x + 1])
+        return dis
+
+class Solution:
+    def constructGridLayout(self, n: int, edges: List[List[int]]) -> List[List[int]]:
+        degree = [0]*n
+        dct = [[] for _ in range(n)]
+        for i, j in edges:
+            degree[i] += 1
+            degree[j] += 1
+            dct[i].append((j ,1))
+            dct[j].append((i, 1))
+        if 1 in degree:
+            x = degree.index(1)
+            dis = Dijkstra().get_shortest_path(dct, x)
+            ans = [0]*n
+            for i in range(n):
+                ans[dis[i]] = i
+            return [ans]
+
+        degree3 = degree.count(3)
+        k = len(edges)
+        nodes = [i for i in range(n) if degree[i] == 2]
+        for m in range(1, n+1):
+            if n % m == 0:
+                p = n//m
+                if 2*m-4+2*p-4 == degree3 and degree3*3+2*4+(n-degree3-4)*4 == 2*k:
+                    for perm in permutations(nodes, 2):
+                        x, y = perm
+                        dis1 = Dijkstra().get_shortest_path(dct, x)
+                        dis2 = Dijkstra().get_shortest_path(dct, y)
+                        flag = 1
+                        lst = []
+                        for i in range(n):
+                            z1 = dis1[i]
+                            z2 = dis2[i]
+                            if (z1+z2-(m-1))%2:
+                                flag = 0
+                                break
+                            y = (z1+z2-(m-1))//2
+                            x = z1-y
+                            if not 0<=x<m and 0<=y<p:
+                                flag = 0
+                                break
+                            lst.append((x, y))
+                        if flag:
+                            ans = [[0]*p for _ in range(m)]
+                            for i in range(n):
+                                ans[lst[i][0]][lst[i][1]] = i
+                            return ans
+        return []",1413192175
+PyIsTheBestLang,PyIsTheBestLang,6,3579,python3,"class Solution:
+    def maxGoodNumber(self, nums: List[int]) -> int:
+        ans = 0
+        for perm in permutations(nums, 3):
+            cur = """".join([bin(x)[2:] for x in perm])
+            ans = max(ans, int(""0b""+cur, 2))
+        return ans",1413191753
+PyIsTheBestLang,PyIsTheBestLang,6,3583,python3,"class PrimeFactor:
+    def __init__(self, n):
+        self.n = n
+        # calculate the minimum prime factor for all numbers from 1 to self.n
+        self.min_prime = [0] * (self.n + 1)
+        self.min_prime[1] = 1
+        # determine whether all numbers from 1 to self.n are prime numbers
+        self.prime_factor = [[] for _ in range(self.n + 1)]
+        self.prime_factor_cnt = [0]*(self.n+1)
+        self.prime_factor_mi_cnt = [0] * (self.n + 1)
+        # calculate all factors of all numbers from 1 to self.n, including 1 and the number itself
+        self.all_factor = [[], [1]] + [[1, i] for i in range(2, self.n + 1)]
+        self.euler_phi = list(range(self.n+1))
+        self.build()
+
+        return
+
+    def build(self):
+
+        # complexity is O(nlogn)
+        for i in range(2, self.n + 1):
+            if not self.min_prime[i]:
+                self.min_prime[i] = i
+                for j in range(i * i, self.n + 1, i):
+                    if not self.min_prime[j]:
+                        self.min_prime[j] = i
+
+        for num in range(2, self.n + 1):
+            pre = num // self.min_prime[num]
+            self.prime_factor_cnt[num] = self.prime_factor_cnt[pre] + int(self.min_prime[num] != self.min_prime[pre])
+            cur = num
+            p = self.min_prime[cur]
+            cnt = 0
+            while cur % p == 0:
+                cnt += 1
+                cur //= p
+            self.prime_factor_mi_cnt[num] = self.prime_factor_mi_cnt[cur] + cnt
+
+        # complexity is O(nlogn)
+        for num in range(2, self.n + 1):
+            i = num
+            phi = num
+            while num > 1:
+                p = self.min_prime[num]
+                cnt = 0
+                while num % p == 0:
+                    num //= p
+                    cnt += 1
+                self.prime_factor[i].append((p, cnt))
+                phi =  phi // p * (p - 1)
+            self.euler_phi[i] = phi
+
+        # complexity is O(nlogn)
+        for i in range(2, self.n + 1):
+            for j in range(i * i, self.n + 1, i):
+                self.all_factor[j].append(i)
+                if j > i * i:
+                    self.all_factor[j].append(j // i)
+        for i in range(self.n + 1):
+            self.all_factor[i].sort()
+        return
+
+    def comb(self, a, b):
+        # Use prime factor decomposition to solve the values of combinatorial mathematics
+        # and prime factor decomposition O ((a+b) log (a+b))
+        cnt = defaultdict(int)
+        for i in range(1, a + 1):  # a!
+            for num, y in self.prime_factor[i]:
+                cnt[num] += y
+        for i in range(1, b + 1):  # b!
+            for num, y in self.prime_factor[i]:
+                cnt[num] -= y
+        for i in range(1, a - b + 1):  # (a-b)!
+            for num, y in self.prime_factor[i]:
+                cnt[num] -= y
+        ans = 1
+        for w in cnt:
+            ans *= w ** cnt[w]
+        return ans
+
+    def get_prime_numbers(self):
+        return [i for i in range(2, self.n + 1) if self.min_prime[i] == 0]
+
+pf = PrimeFactor(5*10**4+10)
+
+
+class Solution:
+    def gcdValues(self, nums: List[int], queries: List[int]) -> List[int]:
+        n = len(nums)
+
+        ceil = max(nums)
+        cnt = [0]*(ceil+1)
+        for num in nums:
+            for p in pf.all_factor[num]:
+                cnt[p] += 1
+        for i in range(ceil+1):
+            cnt[i] = cnt[i]*(cnt[i]-1)//2
+        for i in range(ceil, 0, -1):
+            for j in range(i+i, ceil+1, i):
+                cnt[i] -= cnt[j]
+
+        pre = list(accumulate(cnt))
+
+        ans = []
+        for i in queries:
+            ans.append(bisect.bisect_left(pre, i+1))
+        return ans",1413191648
+jszqlew,jszqlew,8,3561,cpp,"class Solution {
+public:
+    vector<int> remainingMethods(int n, int k, vector<vector<int>>& invocations) {
+        vector<vector<int>> adj(n);
+        for(auto &e: invocations) adj[e[0]].push_back(e[1]);
+        vector<bool> vis(n, false);
+        queue<int> q;
+        q.push(k);
+        vis[k]=true;
+        while(!q.empty()){
+            int u = q.front(); q.pop();
+            for(auto &v: adj[u]){
+                if(!vis[v]){
+                    vis[v]=true;
+                    q.push(v);
+                }
+            }
+        }
+        bool flag=false;
+        for(auto &e: invocations){
+            if(!vis[e[0]] && vis[e[1]]){
+                flag=true;
+                break;
+            }
+        }
+        if(flag){
+            vector<int> res(n);
+            for(int i=0;i<n;i++) res[i]=i;
+            return res;
+        }
+        else{
+            vector<int> res;
+            for(int i=0;i<n;i++) if(!vis[i]) res.push_back(i);
+            return res;
+        }
+    }
+};
+",1413176414
+jszqlew,jszqlew,8,3578,cpp,"class Solution {
+public:
+    typedef long long ll;
+    
+    ll encode(int x, int y) {
+        return ((ll)(x + 100000) << 20) | (y + 100000);
+    }
+    
+    vector<vector<int>> constructGridLayout(int n, vector<vector<int>>& edges){
+        vector<vector<int>> adj(n, vector<int>());
+        for(auto &e: edges){
+            adj[e[0]].push_back(e[1]);
+            adj[e[1]].push_back(e[0]);
+        }
+        
+        vector<int> deg(n, 0);
+        for(int i=0;i<n;i++) deg[i] = adj[i].size();
+        
+        vector<int> starts;
+        for(int i=0;i<n;i++) if(deg[i]==1) starts.push_back(i);
+        if(starts.empty()) {
+            for(int i=0;i<n;i++) if(deg[i]==2) starts.push_back(i);
+        }
+        
+        vector<pair<int, int>> directions = { {0,1}, {1,0}, {0,-1}, {-1,0} };
+        
+        for(auto start: starts){
+            vector<pair<int, int>> pos(n, {INT32_MAX, INT32_MAX});
+            unordered_set<ll> occupied;
+            pos[start] = {0, 0};
+            occupied.insert(encode(0, 0));
+            queue<int> q;
+            q.push(start);
+            bool failed = false;
+            
+            while(!q.empty()){
+                int u = q.front(); q.pop();
+                for(auto &v: adj[u]){
+                    if(pos[v].first != INT32_MAX) continue;
+                    vector<pair<int, int>> assigned_neighbors;
+                    for(auto &w: adj[v]){
+                        if(pos[w].first != INT32_MAX){
+                            assigned_neighbors.emplace_back(pos[w]);
+                        }
+                    }
+                    if(assigned_neighbors.empty()){
+                        continue;
+                    }
+                    vector<pair<int, int>> possible;
+                    for(auto &[dx, dy]: directions){
+                        int nx = assigned_neighbors[0].first + dx;
+                        int ny = assigned_neighbors[0].second + dy;
+                        possible.emplace_back(nx, ny);
+                    }
+                    for(int i=1;i<assigned_neighbors.size();i++){
+                        vector<pair<int, int>> temp;
+                        for(auto &[dx, dy]: directions){
+                            int nx = assigned_neighbors[i].first + dx;
+                            int ny = assigned_neighbors[i].second + dy;
+                            auto it = find_if(possible.begin(), possible.end(), [&](const pair<int, int> &p) -> bool {
+                                return p.first == nx && p.second == ny;
+                            });
+                            if(it != possible.end()){
+                                temp.emplace_back(nx, ny);
+                            }
+                        }
+                        possible = temp;
+                        if(possible.empty()) break;
+                    }
+                    if(possible.empty()){
+                        failed = true;
+                        break;
+                    }
+                    bool assigned = false;
+                    for(auto &[x, y]: possible){
+                        ll key = encode(x, y);
+                        if(occupied.find(key) == occupied.end()){
+                            pos[v] = {x, y};
+                            occupied.insert(key);
+                            q.push(v);
+                            assigned = true;
+                            break;
+                        }
+                    }
+                    if(!assigned){
+                        failed = true;
+                        break;
+                    }
+                }
+                if(failed) break;
+            }
+            if(failed){
+                continue;
+            }
+            bool all_assigned = true;
+            for(int i=0;i<n;i++) if(pos[i].first == INT32_MAX){
+                all_assigned = false;
+                break;
+            }
+            if(!all_assigned){
+                continue;
+            }
+            int minx = INT32_MAX, miny = INT32_MAX;
+            for(int i=0;i<n;i++){
+                minx = min(minx, pos[i].first);
+                miny = min(miny, pos[i].second);
+            }
+            for(int i=0;i<n;i++){
+                pos[i].first -= minx;
+                pos[i].second -= miny;
+            }
+            map<int, vector<pair<int, int>>> rows_map;
+            for(int i=0;i<n;i++) rows_map[pos[i].second].emplace_back(pos[i].first, i);
+            vector<vector<int>> grid;
+            for(auto &[y, vec]: rows_map){
+                sort(vec.begin(), vec.end());
+                vector<int> row;
+                for(auto &[x, node]: vec) row.emplace_back(node);
+                grid.emplace_back(row);
+            }
+            vector<pair<int, int>> final_pos(n, {0,0});
+            for(int y=0; y<grid.size(); y++) {
+                for(int x=0; x<grid[y].size(); x++) {
+                    int node = grid[y][x];
+                    final_pos[node] = {x, y};
+                }
+            }
+            bool valid = true;
+            for(auto &e: edges){
+                int u = e[0], v = e[1];
+                int dx = abs(final_pos[u].first - final_pos[v].first);
+                int dy = abs(final_pos[u].second - final_pos[v].second);
+                if(!((dx == 1 && dy == 0) || (dx == 0 && dy == 1))){
+                    valid = false;
+                    break;
+                }
+            }
+            if(!valid){
+                continue;
+            }
+            for(int y=0; y<grid.size(); y++) {
+                for(int x=0; x<grid[y].size(); x++) {
+                    int u = grid[y][x];
+                    for(auto &[dx, dy]: directions){
+                        int ny = y + dy;
+                        int nx = x + dx;
+                        if(ny >=0 && ny < grid.size() && nx >=0 && nx < grid[ny].size()){
+                            int v = grid[ny][nx];
+                            if(find(adj[u].begin(), adj[u].end(), v) == adj[u].end()){
+                                valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    if(!valid) break;
+                }
+                if(!valid) break;
+            }
+            if(!valid){
+                continue;
+            }
+            return grid;
+        }
+        return {};
+    }
+};
+",1413202887
+jszqlew,jszqlew,8,3579,cpp,"class Solution {
+public:
+    int maxGoodNumber(vector<int>& nums) {
+        int res=0;
+        sort(nums.begin(), nums.end());
+        do{
+            long long val=0;
+            for(auto x: nums){
+                int bits=0, tmp=x;
+                while(tmp){
+                    bits++;
+                    tmp >>=1;
+                }
+                val = (val << bits) | x;
+            }
+            res = max(res, (int)val);
+        }while(next_permutation(nums.begin(), nums.end()));
+        return res;
+    }
+};",1413176079
+jszqlew,jszqlew,8,3583,cpp,"#include<bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> gcdValues(vector<int>& nums, vector<long long>& queries) {
+        int MAX = 50000;
+        vector<long long> freq(MAX+1, 0);
+        for(auto x: nums) freq[x]++;
+        vector<long long> multiples(MAX+1, 0);
+        for(int g=1; g<=MAX; g++) {
+            for(int k=g; k<=MAX; k+=g) multiples[g] += freq[k];
+        }
+        vector<long long> count(MAX+1, 0);
+        for(int g=MAX; g>=1; g--){
+            if(multiples[g] < 2){
+                count[g]=0;
+                continue;
+            }
+            count[g] = multiples[g]*(multiples[g]-1)/2;
+            for(int k=2*g; k<=MAX; k+=g){
+                count[g] -= count[k];
+            }
+        }
+        int qn = queries.size();
+        vector<pair<long long, int>> qs;
+        for(int i=0;i<qn;i++) qs.emplace_back(queries[i], i);
+        sort(qs.begin(), qs.end());
+        vector<int> answer(qn);
+        long long total =0;
+        int g=1;
+        int current =0;
+        while(g<=MAX && current < qn){
+            total += count[g];
+            while(current < qn && qs[current].first < total){
+                answer[qs[current].second] = g;
+                current++;
+            }
+            g++;
+        }
+        return answer;
+    }
+};
+",1413161745
+Nicholas,nicholask_17,9,3561,cpp,"class Solution {
+public:
+    vector<int> remainingMethods(int n, int k, vector<vector<int>>& invocations) {
+        vector <int> out[n];
+        for (auto i:invocations){
+            out[i[0]].push_back(i[1]);
+        }
+        bool vis[n];
+        for (int i=0; i<n; i++) vis[i]=0;
+        vis[k]=1;
+        queue <int> q;
+        q.push(k);
+        while (!q.empty()){
+            int tp=q.front(); q.pop();
+            for (int i:out[tp]){
+                if (!vis[i]){
+                    vis[i]=1;
+                    q.push(i);
+                }
+            }
+        }
+        bool good[n];
+        for (int i=0; i<n; i++) good[i]=0;
+        for (int i=0; i<n; i++){
+            if (!vis[i]){
+                good[i]=1;
+                q.push(i);
+            }
+        }
+        while (!q.empty()){
+            int tp=q.front(); q.pop();
+            for (int i:out[tp]){
+                if (!good[i]){
+                    good[i]=1;
+                    q.push(i);
+                }
+            }
+        }
+        vector <int> ans;
+        for (int i=0; i<n; i++){
+            if (!vis[i]||good[i]) ans.push_back(i);
+        }
+        bool chk=1;
+        for (int i=0; i<n; i++){
+            if (vis[i]&&good[i]) chk=0;
+        }
+        if (!chk){
+            ans.clear();
+            for (int i=0; i<n; i++) ans.push_back(i);
+        }
+        return ans;
+    }
+};",1413178809
+Nicholas,nicholask_17,9,3578,cpp,"class Solution {
+public:
+    vector<vector<int>> constructGridLayout(int n, vector<vector<int>>& edges) {
+        int h,w,m=edges.size();
+        for (int i=1; i<=n; i++){
+            if (n%i) continue;
+            int j=n/i;
+            if (i*(j-1)+j*(i-1)==m){
+                h=i;
+                w=j;
+                break;
+            }
+        }
+        int freq[n];
+        for (int i=0; i<n; i++) freq[i]=0;
+        for (auto i:edges){
+            freq[i[0]]++; freq[i[1]]++;
+        }
+        int mn=*min_element(freq,freq+n);
+        vector <int> pf;
+        for (int i=0; i<n; i++) if (freq[i]==mn) pf.push_back(i);
+        vector <int> g[n];
+        for (auto i:edges){
+            g[i[0]].push_back(i[1]); g[i[1]].push_back(i[0]);
+        }
+        bool done[n];
+        for (int i=0; i<n; i++) done[i]=0;
+        vector <vector <int> > ans(h,vector <int>(w,0));
+        if (h==1){
+            ans[0][0]=pf[0];
+            done[pf[0]]=1;
+            int ths=pf[0];
+            for (int i=1; i<n; i++){
+                for (int j:g[ths]){
+                    if (!done[j]){
+                        done[j]=1;
+                        ans[0][i]=j;
+                        ths=j;
+                        break;
+                    }
+                }
+            }
+        } else {
+            ans[0][0]=pf[0];
+            bool vis[n];
+            for (int i=0; i<n; i++) vis[i]=0;
+            int dist[n],bac[n];
+            queue <int> q;
+            q.push(pf[0]);
+            dist[pf[0]]=0;
+            vis[pf[0]]=1;
+            while (!q.empty()){
+                int tp=q.front(); q.pop();
+                for (int i:g[tp]){
+                    if (!vis[i]){
+                        vis[i]=1;
+                        q.push(i);
+                        dist[i]=dist[tp]+1;
+                        bac[i]=tp;
+                    }
+                }
+            }
+            done[pf[0]]=1;
+            bool doe=0;
+            for (int j=1; j<4; j++){
+                if (dist[pf[j]]==h-1&&!doe){
+                    ans[h-1][0]=pf[j]; done[pf[j]]=1;
+                    int tp=pf[j];
+                    for (int k=h-2; k>0; k--){
+                        tp=bac[tp];
+                        ans[k][0]=tp;
+                        done[tp]=1;
+                    }
+                    doe=1;
+                } else if (dist[pf[j]]==w-1){
+                    ans[0][w-1]=pf[j]; done[pf[j]]=1;
+                    int tp=pf[j];
+                    for (int k=w-2; k>0; k--){
+                        tp=bac[tp];
+                        ans[0][k]=tp;
+                        done[tp]=1;
+                    }
+                }
+            }
+            for (int i=1; i<h; i++){
+                for (int j=1; j<w; j++){
+                    set <int> s;
+                    for (int k:g[ans[i][j-1]]) s.insert(k);
+                    for (int can:g[ans[i-1][j]]){
+                        if (!done[can]&&s.find(can)!=s.end()){
+                            ans[i][j]=can;
+                            done[can]=1;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return ans;
+    }
+};",1413203784
+Nicholas,nicholask_17,9,3579,cpp,"class Solution {
+public:
+    int maxGoodNumber(vector<int>& nums) {
+        string v[3];
+        for (int i=0; i<3; i++){
+            int tp=nums[i];
+            while (tp){
+                v[i]+=char('0'+tp%2);
+                tp/=2;
+            }
+            reverse(v[i].begin(),v[i].end());
+        }
+        string best="""";
+        int a[3]={0,1,2};
+        do {
+            string ths="""";
+            for (int i=0; i<3; i++) ths+=v[a[i]];
+            best=max(best,ths);
+        } while (next_permutation(a,a+3));
+        int ans=0;
+        for (char i:best){
+            ans*=2;
+            if (i=='1') ans++;
+        }
+        return ans;
+    }
+};",1413161161
+Nicholas,nicholask_17,9,3583,cpp,"class Solution {
+public:
+    vector<int> gcdValues(vector<int>& nums, vector<long long>& queries) {
+        int mx=*max_element(nums.begin(),nums.end());
+        long long cnt[mx+1];
+        for (int i=1; i<=mx; i++) cnt[i]=0;
+        for (int i:nums){
+            for (int j=1; j*j<=i; j++){
+                if (i%j) continue;
+                cnt[j]++;
+                if (j*j!=i) cnt[i/j]++;
+            }
+        }
+        for (int i=1; i<=mx; i++) cnt[i]=cnt[i]*(cnt[i]-1)/2;
+        for (int i=mx; i>0; i--){
+            for (int j=2; i*j<=mx; j++) cnt[i]-=cnt[i*j];
+        }
+        for (int i=2; i<=mx; i++) cnt[i]+=cnt[i-1];
+        vector <int> ret;
+        for (long long i:queries){
+            int idx=lower_bound(cnt+1,cnt+mx+1,i+1)-cnt;
+            ret.push_back(idx);
+        }
+        return ret;
+    }
+};",1413176374
+niggeR killa,kill_niggers,10,3561,python3,"from typing import List
+from collections import deque
+
+class Solution:
+    def remainingMethods(self, n: int, k: int, invocations: List[List[int]]) -> List[int]:
+        # Step 1: Build the adjacency list for the invocation graph
+        adj = [[] for _ in range(n)]
+        for a, b in invocations:
+            adj[a].append(b)
+        
+        # Step 2: Identify all suspicious methods using BFS
+        is_suspicious = [False] * n
+        queue = deque()
+        queue.append(k)
+        is_suspicious[k] = True
+        
+        while queue:
+            current = queue.popleft()
+            for neighbor in adj[current]:
+                if not is_suspicious[neighbor]:
+                    is_suspicious[neighbor] = True
+                    queue.append(neighbor)
+        
+        # Step 3: Check if any method outside S invokes a method inside S
+        removal_allowed = True
+        for a, b in invocations:
+            if not is_suspicious[a] and is_suspicious[b]:
+                # Found an invocation from outside S to inside S
+                removal_allowed = False
+                break
+        
+        # Step 4: Return the appropriate list based on removal feasibility
+        if removal_allowed:
+            # Remove all suspicious methods; return the remaining ones
+            remaining = [method for method in range(n) if not is_suspicious[method]]
+            return remaining
+        else:
+            # Cannot remove; return all methods
+            return list(range(n))
+",1413165099
+niggeR killa,kill_niggers,10,3578,python3,"from collections import deque, defaultdict
+from typing import List
+
+class Solution:
+    def constructGridLayout(self, n: int, edges: List[List[int]]) -> List[List[int]]:
+        # Step 1: Build adjacency list and compute degrees
+        adjacency = defaultdict(list)
+        degree = [0] * n
+        for u, v in edges:
+            adjacency[u].append(v)
+            adjacency[v].append(u)
+            degree[u] += 1
+            degree[v] += 1
+
+        # Step 2: Determine if the graph is a path (1D) or grid (2D)
+        degree_one_nodes = [node for node in range(n) if degree[node] == 1]
+        is_path = False
+        if len(degree_one_nodes) == 2:
+            # Check if all other nodes have degree 2
+            if all(degree[node] == 2 for node in range(n) if node not in degree_one_nodes):
+                is_path = True
+
+        node_positions = {}  # node -> (x, y)
+        position_to_node = {}  # (x, y) -> node
+
+        if is_path:
+            # Case 1: 1D Path
+            # Start BFS from one end
+            start_node = degree_one_nodes[0]
+            queue = deque()
+            node_positions[start_node] = (0, 0)
+            position_to_node[(0, 0)] = start_node
+            queue.append(start_node)
+            # Direction for 1D path (rightwards)
+            direction = (1, 0)
+
+            while queue:
+                current = queue.popleft()
+                current_pos = node_positions[current]
+                neighbors = adjacency[current]
+                for neighbor in neighbors:
+                    if neighbor not in node_positions:
+                        # Assign next position in the chosen direction
+                        next_pos = (current_pos[0] + direction[0], current_pos[1] + direction[1])
+                        node_positions[neighbor] = next_pos
+                        position_to_node[next_pos] = neighbor
+                        queue.append(neighbor)
+
+            # After BFS, shift positions to start from (0,0)
+            xs = [pos[0] for pos in node_positions.values()]
+            ys = [pos[1] for pos in node_positions.values()]
+            min_x = min(xs)
+            min_y = min(ys)
+            for node in node_positions:
+                x, y = node_positions[node]
+                node_positions[node] = (x - min_x, y - min_y)
+
+            # Determine grid dimensions
+            xs = [pos[0] for pos in node_positions.values()]
+            ys = [pos[1] for pos in node_positions.values()]
+            max_x = max(xs)
+            max_y = max(ys)
+
+            # Since it's a path, it's either a single row or a single column
+            if max_y == 0:
+                # Single row
+                grid = [ -1 ] * (max_x + 1)
+                for node, (x, y) in node_positions.items():
+                    grid[x] = node
+                return [grid]
+            else:
+                # Single column
+                grid = [ [] for _ in range(max_y +1) ]
+                for node, (x, y) in node_positions.items():
+                    grid[y].append(node)
+                return grid
+
+        else:
+            # Case 2: 2D Grid
+            # Identify corner nodes (degree 2)
+            corner_nodes = [node for node in range(n) if degree[node] == 2]
+            if not corner_nodes:
+                # In case of single cell grid
+                corner_nodes = [0]
+
+            # Start BFS from one corner node
+            start_node = corner_nodes[0]
+            queue = deque()
+            node_positions[start_node] = (0, 0)
+            position_to_node[(0, 0)] = start_node
+            queue.append(start_node)
+
+            # Define possible directions (right, down, left, up)
+            directions = [ (1, 0), (0, 1), (-1, 0), (0, -1) ]
+
+            while queue:
+                current = queue.popleft()
+                current_pos = node_positions[current]
+                neighbors = adjacency[current]
+                dir_idx = 0  # To track which direction to assign
+                for neighbor in neighbors:
+                    if neighbor in node_positions:
+                        # Ensure adjacency in grid matches adjacency in graph
+                        neighbor_pos = node_positions[neighbor]
+                        if abs(current_pos[0] - neighbor_pos[0]) + abs(current_pos[1] - neighbor_pos[1]) != 1:
+                            # Conflict in adjacency, but input guarantees validity
+                            continue
+                    else:
+                        # Assign position to neighbor
+                        # Try all possible directions
+                        for dx, dy in directions:
+                            adj_pos = (current_pos[0] + dx, current_pos[1] + dy)
+                            if adj_pos not in position_to_node:
+                                # Check if this position is compatible with already assigned neighbors of the neighbor
+                                # To avoid conflicts, ensure that if neighbor has multiple assigned neighbors, their positions align
+                                compatible = True
+                                for adj_neighbor in adjacency[neighbor]:
+                                    if adj_neighbor in node_positions:
+                                        adj_neighbor_pos = node_positions[adj_neighbor]
+                                        expected_distance = abs(adj_neighbor_pos[0] - (adj_pos[0])) + abs(adj_neighbor_pos[1] - (adj_pos[1]))
+                                        if expected_distance != 1:
+                                            compatible = False
+                                            break
+                                if compatible:
+                                    # Assign this position
+                                    node_positions[neighbor] = adj_pos
+                                    position_to_node[adj_pos] = neighbor
+                                    queue.append(neighbor)
+                                    break
+
+            # After BFS, shift positions to start from (0,0)
+            xs = [pos[0] for pos in node_positions.values()]
+            ys = [pos[1] for pos in node_positions.values()]
+            min_x = min(xs)
+            min_y = min(ys)
+            for node in node_positions:
+                x, y = node_positions[node]
+                node_positions[node] = (x - min_x, y - min_y)
+
+            # Determine grid dimensions
+            xs = [pos[0] for pos in node_positions.values()]
+            ys = [pos[1] for pos in node_positions.values()]
+            max_x = max(xs)
+            max_y = max(ys)
+
+            # Initialize grid with placeholders
+            grid = [ [ -1 for _ in range(max_x +1) ] for _ in range(max_y +1) ]
+
+            # Place nodes in the grid
+            for node, (x, y) in node_positions.items():
+                grid[y][x] = node
+
+
+            return grid
+",1413204755
+niggeR killa,kill_niggers,10,3579,python3,"from typing import List
+import itertools
+
+class Solution:
+    def maxGoodNumber(self, nums: List[int]) -> int:
+        max_num = 0
+        # Generate all possible permutations of the nums array
+        for perm in itertools.permutations(nums):
+            # Convert each number in the permutation to its binary representation without the '0b' prefix
+            binary_str = ''.join(bin(num)[2:] for num in perm)
+            # Convert the concatenated binary string back to an integer
+            num_val = int(binary_str, 2)
+            # Update max_num if the current num_val is greater
+            if num_val > max_num:
+                max_num = num_val
+        return max_num
+",1413161795
+niggeR killa,kill_niggers,10,3583,python3,"from typing import List
+import bisect
+
+class Solution:
+    def gcdValues(self, nums: List[int], queries: List[int]) -> List[int]:
+        import math
+
+        # Step 1: Frequency counting
+        max_num = max(nums)
+        freq = [0] * (max_num + 1)
+        for num in nums:
+            freq[num] += 1
+
+        # Step 2: Counting multiples
+        count = [0] * (max_num + 1)
+        for g in range(1, max_num + 1):
+            for multiple in range(g, max_num + 1, g):
+                count[g] += freq[multiple]
+
+        # Step 3: Inclusion-Exclusion to compute num_pairs[g]
+        num_pairs = [0] * (max_num + 1)
+        for g in range(max_num, 0, -1):
+            if count[g] >= 2:
+                num_pairs[g] = count[g] * (count[g] - 1) // 2
+            else:
+                num_pairs[g] = 0
+            # Subtract pairs counted for multiples of g
+            multiple = 2 * g
+            while multiple <= max_num:
+                num_pairs[g] -= num_pairs[multiple]
+                multiple += g
+
+        # Step 4: Collect sorted GCDs and compute prefix sums
+        sorted_gcds = []
+        counts = []
+        for g in range(1, max_num +1):
+            if num_pairs[g] > 0:
+                sorted_gcds.append(g)
+                counts.append(num_pairs[g])
+
+        # Sort the GCDs in ascending order
+        sorted_pairs = sorted(zip(sorted_gcds, counts), key=lambda x: x[0])
+        sorted_gcds = [g for g, c in sorted_pairs]
+        counts = [c for g, c in sorted_pairs]
+
+        # Compute prefix sums
+        prefix_sum = []
+        total = 0
+        for c in counts:
+            total += c
+            prefix_sum.append(total)
+
+        # Step 5: Answer the queries using binary search
+        answer = []
+        for q in queries:
+            idx = bisect.bisect_right(prefix_sum, q)
+            # It's guaranteed that queries[i] < total_pairs, so idx < len(prefix_sum)
+            answer.append(sorted_gcds[idx])
+        
+        return answer
+",1413176568
+Javier,JavOliva,11,3561,cpp,"class Solution {
+public:
+    vector<int> remainingMethods(int n, int k, vector<vector<int>>& invocations) {
+        vector<vector<int> > adj(n);
+        for (int i = 0; i < invocations.size(); i ++){
+            int a = invocations[i][0];
+            int b = invocations[i][1];
+            adj[a].push_back(b);
+        }
+        queue<int> cola;
+        cola.push(k);
+        vector<bool> sus(n);
+        sus[k] = 1;
+        while(!cola.empty()){
+            int x = cola.front();
+            cola.pop();
+            for (int y : adj[x]) 
+                if (!sus[y]){
+                    sus[y] = 1;
+                    cola.push(y);
+                }
+        }
+        vector<bool> rev(n);
+        bool oka = true;
+        for (int i = 0; i < n; i ++){
+            if (!sus[i]){
+                rev[i] = 1;
+                cola.push(i);
+                for (int x : adj[i]){
+                    rev[x] = 1;
+                    if (sus[x])
+                        oka = false;
+                }
+            }
+        }
+        vector<int> ans;
+        if (!oka){
+            ans.resize(n);
+            iota(ans.begin(), ans.end(), 0);
+            return ans;
+        }
+        for (int i = 0; i < n; i ++)
+            if (!sus[i])
+                ans.push_back(i);
+        return ans;
+    }
+};",1413170917
+Javier,JavOliva,11,3578,cpp,"class Solution {
+public:
+    void bfs(int s, vector<vector<int> > &adj, vector<int> &dist, vector<int> &p){
+        int n = adj.size();
+        dist.assign(n, -1);
+        p.assign(n, -1);
+        queue<int> cola;
+        cola.push(s);
+        dist[s] = 0;
+        while(!cola.empty()){
+            int x = cola.front();
+            cola.pop();
+            for (int y : adj[x]){
+                if (dist[y] == -1){
+                    p[y] = x;
+                    dist[y] = dist[x] + 1;
+                    cola.push(y);
+                }
+            }
+        }
+    }
+
+    vector<vector<int>> constructGridLayout(int n, vector<vector<int>>& edges) {
+        vector<vector<int> > adj(n);
+        for (int i = 0; i < edges.size(); i ++){
+            int a = edges[i][0];
+            int b = edges[i][1];
+            adj[a].push_back(b);
+            adj[b].push_back(a);
+        }
+        vector<int> corners;
+        vector<int> alone;
+        for (int i = 0; i < n; i ++){
+            if (adj[i].size() == 2){
+                corners.push_back(i);
+            }
+            else if (adj[i].size() == 1){
+                alone.push_back(i);
+            }
+        }
+        if (alone.size() > 0){
+            vector<int> d, p;
+            bfs(alone[0], adj, d, p);
+            vector<vector<int> > path(1);
+            int l = alone.back();
+            while(l != -1){
+                path[0].push_back(l);
+                l = p[l];
+            }
+            return path;
+        }
+        vector<int> d1, p1;
+        bfs(corners[0], adj, d1, p1);
+
+        sort(corners.begin(), corners.end(), [&](int P1, int P2){
+            return d1[P1] < d1[P2];
+        });
+        // cout << corners[0] << "" "" << corners[1] << "" "" << corners[2] << "" "" << corners[3] << endl;
+        int N = d1[corners[1]] + 1;
+        int M = d1[corners[2]] + 1;
+
+        vector<vector<int> > ans(N, vector<int>(M, -1));
+
+        int l = corners[1];
+        int indx = N - 1;
+        while(l != -1){
+            ans[indx][0] = l;
+            l = p1[l];
+            indx --;
+        }
+
+        indx = M - 1;
+        l = corners[2];
+        while(l != -1){
+            ans[0][indx] = l;
+            l = p1[l];
+            indx --;
+        }
+        vector<bool> esta(n);
+        for (int i = 0; i < N; i ++)
+            esta[ans[i][0]] = 1;
+        for (int i = 0; i < M; i ++)
+            esta[ans[0][i]] = 1;
+
+        for (int i = 1; i < N; i ++){
+            for (int j = 1; j < M; j ++){
+                int b1 = ans[i - 1][j];
+                int b2 = ans[i][j - 1];
+                map<int, int> rep;
+                for (int x : adj[b1])
+                    if (!esta[x])
+                        rep[x] ++;
+                int can = -1;
+                for (int x : adj[b2])
+                    if (!esta[x]){
+                        rep[x] ++;
+                        if (rep[x] == 2)
+                            can = x;
+                    }
+                ans[i][j] = can;
+                esta[can] = 1;
+            }
+        }
+        return ans;
+    }
+};",1413195788
+Javier,JavOliva,11,3579,cpp,"class Solution {
+public:
+    int value(int a, int b, int c){
+        string S;
+        bool al = false;
+        for (int i = 10; i >= 0; i --){
+            if ((1 << i) & a){
+                S.push_back('1');
+                al = true;
+            }
+            else if (al){
+                S.push_back('0');
+            }
+        }
+        al = false;
+        for (int i = 10; i >= 0; i --){
+            if ((1 << i) & b){
+                S.push_back('1');
+                al = true;
+            }
+            else if (al){
+                S.push_back('0');
+            }
+        }
+        al = false;
+        for (int i = 10; i >= 0; i --){
+            if ((1 << i) & c){
+                S.push_back('1');
+                al = true;
+            }
+            else if (al){
+                S.push_back('0');
+            }
+        }
+        int ans = 0;
+        reverse(S.begin(), S.end());
+        for (int i = 0; i < S.size(); i ++){
+            if (S[i] == '1')
+                ans |= (1 << i);
+        }
+        return ans;
+    }
+    int maxGoodNumber(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+        int ans = 0;
+        do {
+            ans = max(ans, value(nums[0], nums[1], nums[2]));
+        } while(next_permutation(nums.begin(), nums.end()));
+        return ans;
+    }
+};",1413163082
+Javier,JavOliva,11,3583,cpp,"typedef long long ll;
+const int maxx = 5e4 + 5;
+vector<int> divs[maxx];
+bool al = false;
+class Solution {
+public:
+    vector<int> gcdValues(vector<int>& nums, vector<long long>& queries) {
+        if (!al){
+            for (int i = 1; i < maxx; i ++){
+                for (int j = i; j < maxx; j += i){
+                    divs[j].push_back(i);
+                }
+            }
+            al = true;
+        }
+        vector<ll> pares(maxx, 0);
+        for (int x : nums){
+            for (int y : divs[x]){
+                pares[y] ++;
+            }
+        }
+        // for (int i = 1; i < 6; i ++){
+        //     cout << ""hay["" << i << ""] = "" << pares[i] << endl;
+        // }
+        for (int x = maxx - 1; x >= 1; x --){
+            ll P = pares[x];
+            pares[x] = P * (P - 1) / 2;
+            for (int y = x + x; y < maxx; y += x)
+                pares[x] -= pares[y];
+        }
+        // for (int i = 1; i < 6; i ++){
+        //     cout << ""hay["" << i << ""] = "" << pares[i] << endl;
+        // }
+        for (int i = 1; i < maxx; i ++){
+            pares[i] += pares[i - 1];
+        }
+        vector<int> ans(queries.size());
+        for (int i = 0; i < ans.size(); i ++){
+            ll w = queries[i] + 1;
+            ll left = 1, right = maxx - 1;
+            while(left < right){
+                ll mid = (left + right) / 2;
+                if (pares[mid] >= w){
+                    right = mid;
+                }
+                else{
+                    left = mid + 1;
+                }
+            }
+            ans[i] = left;
+        }
+        return ans;
+    }
+};",1413211877
+robezh765,robezh765,13,3561,cpp,"#define rep(i, a, b) for(int i = a; i < (b); ++i)
+#define trav(a, x) for(auto& a : x)
+#define all(x) begin(x), end(x)
+#define sz(x) (int)(x).size()
+#define subnb true
+#define Lnb true
+typedef long long ll;
+typedef long double ld;
+typedef pair<int, int> pii;
+typedef pair<ll, ll> pll;
+typedef vector<int> vi;
+typedef pair<vi, vi> pvi;
+
+class Solution {
+public:
+    vector<int> remainingMethods(int n, int k, vector<vector<int>>& invocations) {
+        vi vis(n, 0);
+        vector<vi> g(n);
+        for (auto v : invocations) {
+            g[v[0]].push_back(v[1]);
+        }
+        function<void(int)> dfs = [&](int v) {
+            vis[v] = 1;
+            for (int nxt : g[v]) {
+                if(!vis[nxt]) dfs(nxt);
+            }
+        };
+        dfs(k);
+        for (auto v : invocations) {
+            if (vis[v[1]] && !vis[v[0]]) {
+                vi res;
+                rep(i, 0, n) res.push_back(i);
+                return res;
+            }
+        }
+        vi res;
+        rep(i, 0, n) if(!vis[i]) res.push_back(i);
+        return res;
+
+
+    }
+};",1413168296
+robezh765,robezh765,13,3578,cpp,"#define rep(i, a, b) for(int i = a; i < (b); ++i)
+#define trav(a, x) for(auto& a : x)
+#define all(x) begin(x), end(x)
+#define sz(x) (int)(x).size()
+#define subnb true
+#define Lnb true
+typedef long long ll;
+typedef long double ld;
+typedef pair<int, int> pii;
+typedef pair<ll, ll> pll;
+typedef vector<int> vi;
+typedef pair<vi, vi> pvi;
+
+class Solution {
+public:
+    vector<vector<int>> constructGridLayout(int n, vector<vector<int>>& edges) {
+        int x = -1;
+        rep(i, 1, n + 1) {
+            if (n % i == 0) {
+                int a = i, b = n / i;
+                if((a - 1) * b + a * (b - 1) == sz(edges)) {
+                    x = a;
+                    break;
+                }
+            }
+        }
+        assert(x != -1);
+        int a = x, b = n / x;
+        // smaller size = 1
+        vector<vi> g(n);
+        vi cnt(n);
+        for (auto e : edges) {
+            g[e[0]].push_back(e[1]);
+            g[e[1]].push_back(e[0]);
+        }
+        map<int, int> good;
+
+        const int INF = (int)1e9;
+        vi dis0(n,INF), dis1(n, INF);
+        if (a == 1) {
+            int cur = -1;
+            rep(i, 0, n) if(sz(g[i]) == 1) cur = i;
+            assert(cur != -1);
+            vi vis(n);
+            vi row;
+            function<void(int)> dfs = [&](int v) {
+                vis[v] = 1;
+                row.push_back(v);
+                for (int nxt : g[v]) if(!vis[nxt]) dfs(nxt);
+            };
+            dfs(cur);
+            return vector<vi> {row};
+        }
+
+
+        int src0 = -1;
+        rep(i, 0, n) if(sz(g[i]) == 2) src0 = i;
+        assert(src0 != -1);
+
+        auto run_bfs = [&](int src, vi &dis) {
+            queue<int> que;
+            que.push({src});
+            dis[src] = 0;
+            while(!que.empty()) {
+                int v = que.front(); que.pop();
+                for (int nxt : g[v]) {
+                    if(dis[nxt] == INF) {
+                        dis[nxt] = dis[v] + 1;
+                        que.push(nxt);
+                    }
+                }
+            }
+        };
+//        cout << src0 << endl;
+        run_bfs(src0, dis0);
+        int src1 = -1;
+//        cout << a << "" "" << b << endl;
+        rep(i, 0, n) {
+//            cout << ""node "" << i << "": "" << sz(g[i]) << "", "" << dis0[i] << endl;
+             if(sz(g[i]) == 2 && dis0[i] == a - 1) {
+                src1 = i;
+                break;
+            }
+        }
+        assert(src1 != -1);
+        run_bfs(src1, dis1);
+        vector<vi> res(a, vi(b, 0));
+//        cout << ""srcs"" << src0 << "" "" << src1 << endl;
+        rep(i, 0, n) {
+//            cout << i << "" :"" << dis0[i] << "" "" << dis1[i] << endl;
+            int y = (dis0[i] + dis1[i] - (a - 1)) / 2;
+            int x = (dis0[i] - y);
+            res[x][y] = i;
+        }
+        return res;
+    }
+};
+",1413201425
+robezh765,robezh765,13,3579,cpp,"
+#define rep(i, a, b) for(int i = a; i < (b); ++i)
+#define trav(a, x) for(auto& a : x)
+#define all(x) begin(x), end(x)
+#define sz(x) (int)(x).size()
+#define subnb true
+#define Lnb true
+typedef long long ll;
+typedef long double ld;
+typedef pair<int, int> pii;
+typedef pair<ll, ll> pll;
+typedef vector<int> vi;
+typedef pair<vi, vi> pvi;
+
+class Solution {
+public:
+    int maxGoodNumber(vector<int>& nums) {
+        int res = 0;
+        sort(all(nums));
+        do {
+            int cur = 0;
+            for (int x : nums) {
+                vi bts;
+                while(x > 0) {
+                    bts.push_back(x % 2); x/= 2;
+                }
+                reverse(all(bts));
+                for (int b : bts) cur = (cur * 2) + b;
+            }
+            res = max(res, cur);
+        } while(next_permutation(all(nums)));
+        return res;
+    }
+};",1413160896
+robezh765,robezh765,13,3583,cpp,"#define rep(i, a, b) for(int i = a; i < (b); ++i)
+#define trav(a, x) for(auto& a : x)
+#define all(x) begin(x), end(x)
+#define sz(x) (int)(x).size()
+#define subnb true
+#define Lnb true
+typedef long long ll;
+typedef long double ld;
+typedef pair<int, int> pii;
+typedef pair<ll, ll> pll;
+typedef vector<int> vi;
+typedef pair<vi, vi> pvi;
+
+class Solution {
+public:
+    vector<int> gcdValues(vector<int>& nums, vector<long long>& queries) {
+        const int M = (int)5e4 + 50;
+        vi cnt(M);
+        for (int x : nums) cnt[x]++;
+        vector<ll> sum(M);
+        for (int i = 1; i < M; i++) {
+            for (int j = i * 2; j < M; j += i) {
+                cnt[i] += cnt[j];
+            }
+            sum[i] = 1LL * cnt[i] * (cnt[i] - 1) / 2;
+            // if(sum[i]) cout << i << "" "" << sum[i] << endl;
+        }
+        for (int i = M - 1; i >= 1; i--) {
+            for (int j = i * 2; j < M; j += i) {
+                sum[i] -= sum[j];
+            }
+            // if(sum[i]) cout << i << "" "" << sum[i] << endl;
+        }
+        rep(i, 1, M) sum[i] += sum[i - 1];
+        vi res;
+        for (ll x : queries) {
+            res.push_back((int)(upper_bound(all(sum), x) - sum.begin()));
+        }
+
+        return res;
+    }
+};",1413215428
+Ian Wong,ianwong1999,14,3561,cpp,"class Solution {
+public:
+    vector<int> g[100055];
+    vector<int> rg[100055];
+    bool used[100055];
+    
+    void dfs(int v) {
+        used[v] = true;
+        
+        for (auto u : g[v]) {
+            if (used[u]) continue;
+            dfs(u);
+        }
+    }
+    vector<int> remainingMethods(int n, int k, vector<vector<int>>& invocations) {
+        for (int i = 0; i < n; i++) {
+            g[i].clear();
+            rg[i].clear();
+            used[i] = false;
+        }
+        
+        for (const auto& vec: invocations) {
+            int x = vec[0];
+            int y = vec[1];
+            rg[y].push_back(x);
+            g[x].push_back(y);
+        }
+        
+        dfs(k);
+        
+        for (int i = 0; i < n; i++) if (!used[i]) {
+            for (auto j : g[i]) if (used[j]) {
+                for (int k = 0; k < n; k++) used[k] = false;
+                goto DIU;
+            }
+        }
+        
+        DIU:;
+        vector<int> res;
+        
+        for (int i = 0; i < n; i++) if (!used[i]) res.push_back(i);
+        return res;
+    }
+};",1413165975
+Ian Wong,ianwong1999,14,3578,cpp,"class Solution {
+public:
+    int deg[50055];
+    vector<int> g[5];
+    vector<int> e[50055];
+    vector<int> r;
+    int dist[50055];
+    int prev[50055];
+    int c;
+
+
+    vector<vector<int>> constructGridLayout(int n, vector<vector<int>>& edges) {
+        for (int i = 0; i < n; i++) {
+            deg[i] = 0;
+            e[i].clear();
+            dist[i] = -1;
+        }
+        
+        for (int i = 1; i <= 4; i++) g[i].clear();
+        
+        for (const auto& vec : edges) {
+            int x = vec[0];
+            int y = vec[1];
+            
+            deg[x]++;
+            deg[y]++;
+            
+            e[x].push_back(y);
+            e[y].push_back(x);
+        }
+        
+        for (int i = 0; i < n; i++) {
+            g[deg[i]].push_back(i);
+        }
+        
+        c = 0;
+        
+        r.clear();
+        
+        {
+            int pt = 1;
+            while (g[pt].empty()) pt++;
+            
+            dist[g[pt][0]] = 0;
+            
+            queue<int> que;
+            
+            que.push(g[pt][0]);
+            
+            while (!que.empty()) {
+                int v = que.front(); que.pop();
+                
+                for (auto u : e[v]) {
+                    if (dist[u] == -1) {
+                        dist[u] = dist[v] + 1;
+                        prev[u] = v;
+                        que.push(u);
+                    }
+                }
+            }
+            
+            sort(g[pt].begin(), g[pt].end(), [&](int v, int u) {
+                return dist[v] < dist[u];   
+            });
+
+            int u = g[pt][1];
+            
+            do {
+                r.push_back(u);
+                u = prev[u];
+            } while (u != g[pt][0]);
+            r.push_back(u);
+        }
+        vector<vector<int>> res;
+        
+        res.push_back(r);
+        
+        n -= (int)r.size();
+        
+        set<int> used;
+        for (auto v : r) used.insert(v);
+        
+        while (n > 0) {
+            r.clear();
+            for (int i = 0; i < (int)res.back().size(); i++) {
+                int v = res.back()[i];
+                
+                for (auto u : e[v]) {
+                    if (used.count(u)) continue;
+                    r.push_back(u);
+                }
+            }
+            
+            for (auto v : r) used.insert(v);
+            res.push_back(r);
+            n -= r.size();
+        }
+        return res;
+    }
+};",1413214236
+Ian Wong,ianwong1999,14,3579,cpp,"class Solution {
+public:
+    int maxGoodNumber(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+        
+        int res = 0;
+        
+        do {
+            int cur = 0;
+            for (auto x : nums) {
+                string s;
+                int was = x;
+                
+                while (x > 0) {
+                    s += (x % 2) + '0';
+                    x /= 2;
+                    cur *= 2;
+                }
+                
+                cur += was;
+            }
+            res = max(res, cur);
+        } while (next_permutation(nums.begin(), nums.end()));
+        return res;
+    }
+};",1413160730
+Ian Wong,ianwong1999,14,3583,cpp,"class Solution {
+public:
+    int d[50055];
+    long long have[50055];
+    vector<int> gcdValues(vector<int>& nums, vector<long long>& queries) {
+        for (int i = 0; i <= (int)5e4; i++) {
+            d[i] = 0;
+            have[i] = 0;
+        }
+        
+        for (auto x : nums) {
+            d[x]++;
+        }
+        
+        for (int i = (int)5e4; i >= 1; i--) {
+            long long x = 0;
+            
+            for (int j = i; j <= (int)5e4; j += i) {
+                x += d[j];
+            }
+            
+            have[i] = x * (x - 1) / 2;
+            
+            for (int j = i + i; j <= (int)5e4; j += i) {
+                have[i] -= have[j];
+            }
+        }
+        
+        for (int i = 2; i <= (int)5e4; i++) {
+            have[i] += have[i - 1];
+        }
+        
+        vector<int> res;
+        
+        for (auto x : queries) {
+            res.push_back(upper_bound(have + 1, have + (int)5e4 + 1, x) - have);
+        }
+        
+        return res;
+    }
+};",1413177278
+Ma Lin,Ma_Lin,17,3561,cpp,"class Solution {
+public:
+    vector<int> g[100005], fg[100005];
+    bool bad[100005];
+    
+    void dfs(int p){
+        if (bad[p]) return;
+        bad[p] = true;
+        for (auto j : g[p]) dfs(j);
+    }
+    
+    vector<int> remainingMethods(int n, int K, vector<vector<int>>& edges) {
+        int i, j;
+        for (i = 0; i < n; ++i) g[i].clear();
+        for (i = 0; i < n; ++i) fg[i].clear();
+        for (i = 0; i < n; ++i) bad[i] = false;
+        for (auto e : edges){
+            g[e[0]].push_back(e[1]);
+            fg[e[1]].push_back(e[0]);
+        }
+        
+        dfs(K);
+        vector<int> res;
+        for (auto e : edges)
+            if (!bad[e[0]] && bad[e[1]]){
+                for (i = 0; i < n; ++i) res.push_back(i);
+                return res;
+            }
+            
+        for (i = 0; i < n; ++i) 
+            if (!bad[i]) res.push_back(i);
+            
+        return res;
+    }
+};",1413172067
+Ma Lin,Ma_Lin,17,3578,cpp,"class Solution {
+public:
+    vector<int> g[100005];
+    int H, W, deg[100005];
+    bool done[100005];
+    vector<int> res[100005];
+        
+    vector<vector<int>> constructGridLayout(int n, vector<vector<int>>& edges) {
+        int i, k, s, r;
+        for (i = 0; i < n; ++i) g[i].clear();
+        for (i = 0; i < n; ++i) res[i].clear();
+        for (i = 0; i < n; ++i) done[i] = false;
+        for (i = 0; i < n; ++i) deg[i] = 0;
+        for (auto e : edges){
+            g[e[0]].push_back(e[1]);
+            g[e[1]].push_back(e[0]);
+            ++deg[e[0]];
+            ++deg[e[1]];
+        }
+        
+        H = -1;
+        for (i = 0; i < n; ++i)
+            if (deg[i] == 1){
+                H = 1;
+                break;
+            }
+        
+        if (H == 1){
+            W = n / H;
+            while (true){
+                res[0].push_back(i);
+                done[i] = true;
+                k = -1;
+                for (auto j : g[i])
+                    if (!done[j]){
+                        k = j;
+                        break;
+                    }
+                if (k == -1) break;
+                i = k;
+            }
+        }
+        else{
+            for (i = 0; i < n; ++i)
+                if (deg[i] == 2) break;
+            
+            k = -1;
+            for (auto j : g[i])
+                if (deg[j] == 2){
+                    H = 2;
+                    res[0].push_back(i);
+                    res[1].push_back(j);
+                    done[i] = done[j] = true;
+                    cout<<i<<"" ""<<j<<endl;
+                    break;
+                }
+            
+            if (H != 2){
+                H = 0;
+                while (true){
+                    res[H++].push_back(i);
+                    done[i] = true;
+                    if (H > 1 && deg[i] == 2) break;
+                    k = -1;
+                    for (auto j : g[i])
+                        if (!done[j] && (deg[j] == 2 || deg[j] == 3)){
+                            k = j;
+                            break;
+                        }
+
+                    i = k;
+                }
+            }
+            
+            W = n / H;
+            for (s = 1; s < W; ++s){
+                for (r = 0; r < H; ++r){
+                    i = res[r].back();
+                    k = -1;
+                    for (auto j : g[i])
+                        if (!done[j]){
+                            k = j;
+                            break;
+                        }
+                    
+                    done[k] = true;
+                    res[r].push_back(k);
+                }
+            }
+        }
+        
+        vector<vector<int> > ans;
+        for (i = 0; i < H; ++i) ans.push_back(res[i]);
+        return ans;
+    }
+};",1413205612
+Ma Lin,Ma_Lin,17,3579,cpp,"class Solution {
+public:
+    int maxGoodNumber(vector<int>& aa) {
+        vector<pair<int, int> > a;
+        for (auto x : aa){
+            int y = x;
+            int len = 0;
+            while (y){
+                ++len;
+                y /= 2;
+            }
+            a.push_back({x, len});
+        }
+        
+        int i, j, res = 0, now;
+        vector<int> w;
+        w.push_back(0);
+        w.push_back(1);
+        w.push_back(2);
+        do{
+            now = 0;
+            for (j = 0; j < w.size(); ++j){
+                i = w[j];
+                now = (now << a[i].second);
+                now += a[i].first;
+            }
+            
+            res = max(res, now);
+        }while (next_permutation(w.begin(), w.end()));
+        
+        return res;
+    }
+};",1413163293
+Ma Lin,Ma_Lin,17,3583,cpp,"class Solution {
+public:
+    long long f[50005], ge[50005], sum[50005];
+    vector<int> gcdValues(vector<int>& a, vector<long long>& Q) {
+        long long n = a.size(), i, j, k, zd = 0, now = 0;
+        for (auto x : a) zd = max(zd, (long long)x);
+        for (i = 1; i <= zd; ++i) ge[i] = 0;
+        for (auto x : a) ge[x]++;
+        for (i = zd; i >= 1; --i){
+            now = 0;
+            for (j = i; j <= zd; j += i) now += ge[j];
+            f[i] = now * (now - 1) / 2;
+            for (j = i + i; j <= zd; j += i) f[i] -= f[j];
+        }
+        
+        sum[0] = 0;
+        for (i = 1; i <= zd; ++i) sum[i] = sum[i - 1] + f[i];
+        vector<int> res;
+        for (auto q : Q){
+            i = lower_bound(sum + 1, sum + zd + 1, (long long)q+1) - sum;
+            res.push_back(i);
+        }
+        return res;
+    }
+};",1413215742
+zaneyu2005,zaneyu2005,18,3561,cpp,"#include<bits/stdc++.h>
+using namespace std;
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+typedef tree<long long,null_type,less_equal<long long>,rb_tree_tag,tree_order_statistics_node_update> indexed_set;
+#pragma GCC optimize(""Ofast"")
+//#pragma GCC target(""avx2"")
+//order_of_key #of elements less than x
+// find_by_order kth element
+using ll=long long;
+using ld=long double;
+using pii=pair<ll,ll>;
+#define f first
+#define s second
+#define pb push_back
+#define REP(i,n) for(int i=0;i<n;i++)
+#define REP1(i,n) for(ll i=1;i<=n;i++)
+#define FILL(n,x) memset(n,x,sizeof(n))
+#define ALL(_a) _a.begin(),_a.end()
+#define sz(x) (int)x.size()
+#define SORT_UNIQUE(c) (sort(c.begin(),c.end()),c.resize(distance(c.begin(),unique(c.begin(),c.end()))))
+const ll maxn=1e5+5;
+const ll maxlg=__lg(maxn)+2;
+const ll INF64=9e18;
+const int INF=0x3f3f3f3f;
+const ll MOD=998244353;
+const ld PI=acos(-1);
+const ld eps=1e-6;
+#define lowb(x) x&(-x)
+#define MNTO(x,y) x=min(x,(__typeof__(x))y)
+#define MXTO(x,y) x=max(x,(__typeof__(x))y)
+template<typename T1,typename T2>
+ostream& operator<<(ostream& out,pair<T1,T2> P){
+    out<<P.f<<' '<<P.s;
+    return out;
+}
+template<typename T>
+ostream& operator<<(ostream& out,vector<T> V){
+    REP(i,sz(V)) out<<V[i]<<((i!=sz(V)-1)?""\n"":"""");
+    return out;
+}
+class Solution {
+public:
+    vector<int> g[maxn],v[maxn];
+    bool vis[maxn];
+    void dfs(int u){
+        vis[u]=1;
+        for(int x:g[u]){
+            if(!vis[x]) dfs(x);
+        }
+    }
+    vector<int> remainingMethods(int n, int k, vector<vector<int>>& ed) {
+        REP(i,n) g[i].clear(),v[i].clear(),vis[i]=0;
+        for(auto x:ed){
+            g[x[0]].pb(x[1]);
+            v[x[1]].pb(x[0]);
+        }
+        dfs(k);
+        vector<int> ans;
+        bool ok=1;
+        REP(i,n){
+            if(vis[i]){
+                for(int x:v[i]){
+                    if(!vis[x]){
+                        ok=0;
+                        break;
+                    }
+                }
+            }
+            else{
+                ans.pb(i);
+            }
+        }
+        if(ok){
+            return ans;
+        }
+        REP(i,n) if(vis[i]) ans.pb(i);
+        return ans;
+    }
+};",1413163540
+zaneyu2005,zaneyu2005,18,3578,cpp,"#include<bits/stdc++.h>
+using namespace std;
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+typedef tree<long long,null_type,less_equal<long long>,rb_tree_tag,tree_order_statistics_node_update> indexed_set;
+#pragma GCC optimize(""Ofast"")
+//#pragma GCC target(""avx2"")
+//order_of_key #of elements less than x
+// find_by_order kth element
+using ll=long long;
+using ld=long double;
+using pii=pair<ll,ll>;
+#define f first
+#define s second
+#define pb push_back
+#define REP(i,n) for(int i=0;i<n;i++)
+#define REP1(i,n) for(ll i=1;i<=n;i++)
+#define FILL(n,x) memset(n,x,sizeof(n))
+#define ALL(_a) _a.begin(),_a.end()
+#define sz(x) (int)x.size()
+#define SORT_UNIQUE(c) (sort(c.begin(),c.end()),c.resize(distance(c.begin(),unique(c.begin(),c.end()))))
+const ll maxn=1e5+5;
+const ll maxlg=__lg(maxn)+2;
+const ll INF64=9e18;
+const int INF=0x3f3f3f3f;
+const ll MOD=998244353;
+const ld PI=acos(-1);
+const ld eps=1e-6;
+#define lowb(x) x&(-x)
+#define MNTO(x,y) x=min(x,(__typeof__(x))y)
+#define MXTO(x,y) x=max(x,(__typeof__(x))y)
+template<typename T1,typename T2>
+ostream& operator<<(ostream& out,pair<T1,T2> P){
+    out<<P.f<<' '<<P.s;
+    return out;
+}
+template<typename T>
+ostream& operator<<(ostream& out,vector<T> V){
+    REP(i,sz(V)) out<<V[i]<<((i!=sz(V)-1)?""\n"":"""");
+    return out;
+}
+class Solution {
+public:
+    vector<int> v[maxn];
+    int d;
+    vector<int> pth;
+    int vis[maxn],par[maxn];
+    int mn;
+    int st;
+    bool dfs(int u){
+        if(u!=st and sz(v[u])==mn){
+            pth.pb(u);
+            return true;
+        }
+        vis[u]=1;
+        for(int x:v[u]){
+            if(sz(v[x])>mn+1 or vis[x]) continue;
+            if(dfs(x)){
+                pth.pb(u);
+                return true;
+            }
+        }
+        return false;
+    }
+    vector<vector<int>> constructGridLayout(int n, vector<vector<int>>& edges) {
+        REP(i,n) v[i].clear(),vis[i]=0;
+        pth.clear();
+        mn=INF;
+        for(auto x:edges){
+            v[x[0]].pb(x[1]),v[x[1]].pb(x[0]);
+        }
+        REP(i,n) MNTO(mn,sz(v[i]));
+        vector<int> ed;
+        REP(i,n){
+            if(sz(v[i])==mn){
+                ed.pb(i);
+            }
+        }
+        st=ed[0];
+        queue<int> q;
+        q.push(ed[0]);
+        while(sz(q)){
+            int z=q.front();
+            q.pop();
+            if(z!=ed[0] and sz(v[z])==mn){
+                d=z;
+                break;
+            }
+            for(int x:v[z]){
+                if(!vis[x]){
+                    vis[x]=1;
+                    par[x]=z;
+                    q.push(x);
+                }
+            }
+        }
+        while(d!=ed[0]){
+            pth.pb(d);
+            d=par[d];
+        }
+        REP(i,n) vis[i]=0;
+        pth.pb(d);
+        vector<vector<int>> ans;
+        REP(i,(n/sz(pth))-1){
+            vector<int> nw;
+            for(int x:pth) vis[x]=(i+1);
+            for(int x:pth){
+                for(int a:v[x]){
+                    if(!vis[a]){
+                        nw.pb(a);
+                    }
+                }
+            }
+            ans.pb(pth);
+            pth=nw;
+        }
+        ans.pb(pth);
+        return ans;
+    }
+};",1413194650
+zaneyu2005,zaneyu2005,18,3579,cpp,"#include<bits/stdc++.h>
+using namespace std;
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+typedef tree<long long,null_type,less_equal<long long>,rb_tree_tag,tree_order_statistics_node_update> indexed_set;
+#pragma GCC optimize(""Ofast"")
+//#pragma GCC target(""avx2"")
+//order_of_key #of elements less than x
+// find_by_order kth element
+using ll=long long;
+using ld=long double;
+using pii=pair<ll,ll>;
+#define f first
+#define s second
+#define pb push_back
+#define REP(i,n) for(int i=0;i<n;i++)
+#define REP1(i,n) for(ll i=1;i<=n;i++)
+#define FILL(n,x) memset(n,x,sizeof(n))
+#define ALL(_a) _a.begin(),_a.end()
+#define sz(x) (int)x.size()
+#define SORT_UNIQUE(c) (sort(c.begin(),c.end()),c.resize(distance(c.begin(),unique(c.begin(),c.end()))))
+const ll maxn=100+5;
+const ll maxlg=__lg(maxn)+2;
+const ll INF64=9e18;
+const int INF=0x3f3f3f3f;
+const ll MOD=998244353;
+const ld PI=acos(-1);
+const ld eps=1e-6;
+#define lowb(x) x&(-x)
+#define MNTO(x,y) x=min(x,(__typeof__(x))y)
+#define MXTO(x,y) x=max(x,(__typeof__(x))y)
+template<typename T1,typename T2>
+ostream& operator<<(ostream& out,pair<T1,T2> P){
+    out<<P.f<<' '<<P.s;
+    return out;
+}
+template<typename T>
+ostream& operator<<(ostream& out,vector<T> V){
+    REP(i,sz(V)) out<<V[i]<<((i!=sz(V)-1)?""\n"":"""");
+    return out;
+}
+class Solution {
+public:
+    int maxGoodNumber(vector<int>& nums) {
+        sort(ALL(nums));
+        int ans=0;
+        do{
+            int cur=0;
+            for(int x:nums){
+                cur=(cur<<(__lg(x)+1))+x;
+            }
+            MXTO(ans,cur);
+        }while(next_permutation(ALL(nums)));
+        return ans;
+    }
+};",1413167495
+zaneyu2005,zaneyu2005,18,3583,cpp,"#include<bits/stdc++.h>
+using namespace std;
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+using namespace __gnu_pbds;
+typedef tree<long long,null_type,less_equal<long long>,rb_tree_tag,tree_order_statistics_node_update> indexed_set;
+#pragma GCC optimize(""Ofast"")
+//#pragma GCC target(""avx2"")
+//order_of_key #of elements less than x
+// find_by_order kth element
+using ll=long long;
+using ld=long double;
+using pii=pair<ll,ll>;
+#define f first
+#define s second
+#define pb push_back
+#define REP(i,n) for(int i=0;i<n;i++)
+#define REP1(i,n) for(ll i=1;i<=n;i++)
+#define FILL(n,x) memset(n,x,sizeof(n))
+#define ALL(_a) _a.begin(),_a.end()
+#define sz(x) (int)x.size()
+#define SORT_UNIQUE(c) (sort(c.begin(),c.end()),c.resize(distance(c.begin(),unique(c.begin(),c.end()))))
+const ll maxn=1e5+5;
+const ll maxlg=__lg(maxn)+2;
+const ll INF64=9e18;
+const int INF=0x3f3f3f3f;
+const ll MOD=998244353;
+const ld PI=acos(-1);
+const ld eps=1e-6;
+#define lowb(x) x&(-x)
+#define MNTO(x,y) x=min(x,(__typeof__(x))y)
+#define MXTO(x,y) x=max(x,(__typeof__(x))y)
+template<typename T1,typename T2>
+ostream& operator<<(ostream& out,pair<T1,T2> P){
+    out<<P.f<<' '<<P.s;
+    return out;
+}
+template<typename T>
+ostream& operator<<(ostream& out,vector<T> V){
+    REP(i,sz(V)) out<<V[i]<<((i!=sz(V)-1)?""\n"":"""");
+    return out;
+}
+class Solution {
+public:
+    int cnt[maxn];
+    ll res[maxn];
+    vector<int> gcdValues(vector<int>& nums, vector<long long>& queries) {
+        for(int x:nums) cnt[x]++;
+        for(int i=maxn-1;i>=1;i--){
+            ll tot=0,c=0;
+            for(int j=i;j<maxn;j+=i){
+                c+=cnt[j];
+                tot+=res[j];
+            }
+            res[i]=c*(c-1)/2-tot;
+        }
+        REP1(i,maxn-1) res[i]+=res[i-1];
+        vector<int> ans;
+        for(auto x:queries){
+            ++x;
+            ans.pb(lower_bound(res+1,res+maxn,x)-res);
+        }
+        return ans;
+    }
+};",1413202090
+LayCurse,LayCurse,19,3561,cpp,"#pragma GCC optimize(""Ofast"")
+#pragma GCC optimize(""unroll-loops"")
+#pragma GCC optimize(""inline"")
+#include<bits/stdc++.h>
+using namespace std;
+void*wmem;
+char memarr[96000000];
+template<class T> inline void walloc1d(T **arr, int x, void **mem = &wmem){
+  static int skip[16] = {0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+  (*mem) = (void*)( ((char*)(*mem)) + skip[((unsigned long long)(*mem)) & 15] );
+  (*arr)=(T*)(*mem);
+  (*mem)=((*arr)+x);
+}
+template<class T> inline void walloc1d(T **arr, int x1, int x2, void **mem = &wmem){
+  walloc1d(arr, x2-x1, mem);
+  (*arr) -= x1;
+}
+struct graph{
+  int N;
+  int*es;
+  int**edge;
+  void setDirectEdge(int N__, int M, int A[], int B[], void **mem = &wmem){
+    int i;
+    N = N__;
+    walloc1d(&es, N, mem);
+    walloc1d(&edge, N, mem);
+    walloc1d(&edge[0], M, mem);
+    for(i=(0);i<(N);i++){
+      es[i] = 0;
+    }
+    for(i=(0);i<(M);i++){
+      es[A[i]]++;
+    }
+    for(i=(0);i<(N);i++){
+      walloc1d(&edge[i], es[i], mem);
+    }
+    for(i=(0);i<(N);i++){
+      es[i] = 0;
+    }
+    for(i=(0);i<(M);i++){
+      edge[A[i]][es[A[i]]++] = B[i];
+    }
+  }
+}
+;
+template<class T, class S> inline int vec2arr(vector<T> &v, S arr[]){
+  int i;
+  int N = v.size();
+  for(i=(0);i<(N);i++){
+    arr[i] = v[i];
+  }
+  return N;
+}
+template<class T, class S1, class S2> inline int vec2arr(vector<vector<T>> &v, S1 arr1[], S2 arr2[]){
+  int i;
+  int N = v.size();
+  for(i=(0);i<(N);i++){
+    arr1[i] = v[i][0];
+    arr2[i] = v[i][1];
+  }
+  return N;
+}
+template<class T, class S1, class S2, class S3> inline int vec2arr(vector<vector<T>> &v, S1 arr1[], S2 arr2[], S3 arr3[]){
+  int i;
+  int N = v.size();
+  for(i=(0);i<(N);i++){
+    arr1[i] = v[i][0];
+    arr2[i] = v[i][1];
+    arr3[i] = v[i][2];
+  }
+  return N;
+}
+#define main dummy_main
+int main(){
+  wmem = memarr;
+  return 0;
+}
+#undef main
+int N;
+int M;
+int A[1000000];
+int B[1000000];
+graph g;
+int sus[1000000];
+int non[1000000];
+int s;
+int st[1000000];
+void chk(int arr[]){
+  int i;
+  int j;
+  int k;
+  s = 0;
+  for(i=(0);i<(N);i++){
+    if(arr[i]){
+      st[s++] = i;
+    }
+  }
+  while(s > 0){
+    i = st[--s];
+    for(j=(0);j<(g.es[i]);j++){
+      k = g.edge[i][j];
+      if(arr[k]){
+        continue;
+      }
+      arr[k] = 1;
+      st[s++] = k;
+    }
+  }
+}
+class Solution{
+  public:
+  vector<int> remainingMethods(int n, int k, vector<vector<int>>& invocations){
+    int i;
+    dummy_main();
+    vector<int> res;
+    N = n;
+    M = vec2arr(invocations, A, B);
+    g.setDirectEdge(N,M,A,B);
+    for(i=(0);i<(N);i++){
+      sus[i] = 0;
+    }
+    sus[k] = 1;
+    chk(sus);
+    for(i=(0);i<(N);i++){
+      non[i] = 0;
+    }
+    for(i=(0);i<(N);i++){
+      if(sus[i]==0){
+        non[i] = 1;
+      }
+    }
+    chk(non);
+    for(i=(0);i<(N);i++){
+      if(sus[i] && non[i]){
+        for(i=(0);i<(N);i++){
+          res.push_back(i);
+        }
+        return res;
+      }
+    }
+    for(i=(0);i<(N);i++){
+      if(non[i]){
+        res.push_back(i);
+      }
+    }
+    return res;
+  }
+}
+;
+// cLay version 20240810-1 [beta]
+
+// --- original code ---
+// #define main dummy_main
+// {}
+// #undef main
+// 
+// int N, M, A[1d6], B[1d6];
+// graph g;
+// int sus[1d6], non[1d6];
+// int s, st[1d6];
+// 
+// void chk(int arr[]){
+//   int i, j, k;
+// 
+//   s = 0;
+//   rep(i,N) if(arr[i]) st[s++] = i;
+// 
+//   while(s > 0){
+//     i = st[--s];
+//     rep(j,g.es[i]){
+//       k = g.edge[i][j];
+//       if(arr[k]) continue;
+//       arr[k] = 1;
+//       st[s++] = k;
+//     }
+//   }
+// }
+// 
+// class Solution {
+// public:
+//   vector<int> remainingMethods(int n, int k, vector<vector<int>>& invocations) {
+//     dummy_main();
+//     VI res;
+// 
+//     N = n;
+//     M = vec2arr(invocations, A, B);
+//     g.setDirectEdge(N,M,A,B);
+// 
+//     rep(i,N) sus[i] = 0;
+//     sus[k] = 1;
+//     chk(sus);
+// 
+//     rep(i,N) non[i] = 0;
+//     rep(i,N) if(sus[i]==0) non[i] = 1;
+//     chk(non);
+// 
+//     rep(i,N) if(sus[i] && non[i]){
+//       rep(i,N) res.push_back(i);
+//       return res;
+//     }
+// 
+//     rep(i,N) if(non[i]) res.push_back(i);
+//     return res;
+//   }
+// };
+",1413181639
+LayCurse,LayCurse,19,3578,cpp,"#pragma GCC optimize(""Ofast"")
+#pragma GCC optimize(""unroll-loops"")
+#pragma GCC optimize(""inline"")
+#include<bits/stdc++.h>
+using namespace std;
+template<class T> struct cLtraits_identity{
+  using type = T;
+}
+;
+template<class T> using cLtraits_try_make_unsigned =
+  typename conditional<
+    is_integral<T>::value,
+    make_unsigned<T>,
+    cLtraits_identity<T>
+    >::type;
+void*wmem;
+char memarr[96000000];
+template<class S, class T> inline S chmin(S &a, T b){
+  if(a>b){
+    a=b;
+  }
+  return a;
+}
+template<class S, class T> inline S chmax(S &a, T b){
+  if(a<b){
+    a=b;
+  }
+  return a;
+}
+template<class S, class T> inline S divup_L(S a, T b){
+  return (a+b-1)/b;
+}
+template<class T> inline void walloc1d(T **arr, int x, void **mem = &wmem){
+  static int skip[16] = {0, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+  (*mem) = (void*)( ((char*)(*mem)) + skip[((unsigned long long)(*mem)) & 15] );
+  (*arr)=(T*)(*mem);
+  (*mem)=((*arr)+x);
+}
+template<class T> inline void walloc1d(T **arr, int x1, int x2, void **mem = &wmem){
+  walloc1d(arr, x2-x1, mem);
+  (*arr) -= x1;
+}
+inline int Ilog2_f_L(const int n){
+  int res;
+  if(n <= 0){
+    return -1;
+  }
+  res = sizeof(int) * 8 - __builtin_clz(n) - 1;
+  return res;
+}
+inline int Ilog2_f_L(const long long n){
+  int res;
+  if(n <= 0){
+    return -1;
+  }
+  res = sizeof(long long) * 8 - __builtin_clzll(n) - 1;
+  return res;
+}
+template<class T1> void sortI(int N, T1 a[], void *mem = wmem){
+  sort(a, a+N);
+}
+template<class T1, class T2> void sortI(int N, T1 a[], T2 b[], void *mem = wmem){
+  int i;
+  pair<T1, T2>*arr;
+  walloc1d(&arr, N, &mem);
+  for(i=(0);i<(N);i++){
+    arr[i].first = a[i];
+    arr[i].second = b[i];
+  }
+  sort(arr, arr+N);
+  for(i=(0);i<(N);i++){
+    a[i] = arr[i].first;
+    b[i] = arr[i].second;
+  }
+}
+template<class T1, class T2, class T3> void sortI(int N, T1 a[], T2 b[], T3 c[], void *mem = wmem){
+  int i;
+  pair<T1, pair<T2, T3> >*arr;
+  walloc1d(&arr, N, &mem);
+  for(i=(0);i<(N);i++){
+    arr[i].first = a[i];
+    arr[i].second.first = b[i];
+    arr[i].second.second = c[i];
+  }
+  sort(arr, arr+N);
+  for(i=(0);i<(N);i++){
+    a[i] = arr[i].first;
+    b[i] = arr[i].second.first;
+    c[i] = arr[i].second.second;
+  }
+}
+template<class T1, class T2, class T3, class T4> void sortI(int N, T1 a[], T2 b[], T3 c[], T4 d[], void *mem = wmem){
+  int i;
+  pair<pair<T1, T2>, pair<T3, T4> >*arr;
+  walloc1d(&arr, N, &mem);
+  for(i=(0);i<(N);i++){
+    arr[i].first.first = a[i];
+    arr[i].first.second = b[i];
+    arr[i].second.first = c[i];
+    arr[i].second.second = d[i];
+  }
+  sort(arr, arr+N);
+  for(i=(0);i<(N);i++){
+    a[i] = arr[i].first.first;
+    b[i] = arr[i].first.second;
+    c[i] = arr[i].second.first;
+    d[i] = arr[i].second.second;
+  }
+}
+template<class T> inline int sort_helper_getbit(T A[]){
+  return -1;
+}
+template<> inline int sort_helper_getbit(int A[]){
+  return sizeof(int)*8;
+}
+template<> inline int sort_helper_getbit(unsigned A[]){
+  return sizeof(unsigned)*8;
+}
+template<> inline int sort_helper_getbit(long long A[]){
+  return sizeof(long long)*8;
+}
+template<> inline int sort_helper_getbit(unsigned long long A[]){
+  return sizeof(unsigned long long)*8;
+}
+template<> inline int sort_helper_getbit(char A[]){
+  return sizeof(char)*8;
+}
+template<class T> void sortA_1_int_L(int N, T A[], void *mem = wmem){
+  int i;
+  int j;
+  int k;
+  int b;
+  int s;
+  int ok;
+  ok = 1;
+  for(i=(1);i<(N);i++){
+    if(A[i-1] > A[i]){
+      ok = 0;
+      break;
+    }
+  }
+  if(ok){
+    return;
+  }
+  if(N < 128){
+    sort(A,A+N);
+    return;
+  }
+  b = sort_helper_getbit(A);
+  if(b==-1){
+    sort(A,A+N);
+    return;
+  }
+  T mn;
+  T mx;
+  mn = mx = A[0];
+  for(i=(1);i<(N);i++){
+    chmin(mn, A[i]);
+  }
+  for(i=(1);i<(N);i++){
+    chmax(mx, A[i]);
+  }
+  ok = 1;
+  if(mn < 0 && mx > 0 && (mn < -N || mx > N)){
+    ok = 0;
+  }
+  if(ok && mx - mn > N){
+    ok = 0;
+  }
+  if(ok){
+    int*tmp;
+    walloc1d(&tmp, mx-mn+1, &mem);
+    for(i=(0);i<(mx-mn+1);i++){
+      tmp[i] = 0;
+    }
+    for(i=(0);i<(N);i++){
+      tmp[A[i]-mn]++;
+    }
+    k = 0;
+    for(i=(0);i<(mx-mn+1);i++){
+      while(tmp[i] > 0){
+        tmp[i]--;
+        A[k++] = i+mn;
+      }
+    }
+    return;
+  }
+  {
+    typename make_unsigned<T>::type *t[2];
+    typename make_unsigned<T>::type  mask;
+    typename make_unsigned<T>::type  cur;
+    typename make_unsigned<T>::type  one = 1;
+    T tone = 1;
+    int*pos;
+    int nn = 0;
+    int ss;
+    s =Ilog2_f_L(N);
+    if(s > 8){
+      s = (8 + (s-7)/2);
+    }
+    ss = 1;
+    for(;;){
+      if(ss >= b){
+        break;
+      }
+      if( mx >= 0 && (tone << (ss-1)) < mx ){
+        ss++;
+        continue;
+      }
+      if( mn < 0 && -(tone << (ss-1)) >= mn ){
+        ss++;
+        continue;
+      }
+      break;
+    }
+    k =(divup_L(ss,s));
+    s =(divup_L(ss,k));
+    mask = 0;
+    for(i=(0);i<(b);i++){
+      if(i < s*k){
+        mask |= one << i;
+      }
+    }
+    t[0] = (typename make_unsigned<T>::type *) A;
+    walloc1d(&t[1], N, &mem);
+    walloc1d(&pos, (1<<s)+1, &mem);
+    for(j=(0);j<(k);j++){
+      cur = 0;
+      for(i=(0);i<(b);i++){
+        if(s*j <= i && i < s*(j+1) && i < b){
+          cur |= one << i;
+        }
+      }
+      for(i=(0);i<((1<<s)+1);i++){
+        pos[i] = 0;
+      }
+      for(i=(0);i<(N);i++){
+        pos[((t[nn][i]&cur)>>(s*j))+1]++;
+      }
+      for(i=(0);i<((1<<s));i++){
+        pos[i+1] += pos[i];
+      }
+      for(i=(0);i<(N);i++){
+        t[nn^1][pos[(t[nn][i]&cur)>>(s*j)]++] = t[nn][i];
+      }
+      nn ^= 1;
+      mask ^= cur;
+    }
+    if(mn < 0 && mx >= 0){
+      k = 0;
+      for(i=(0);i<(N);i++){
+        if(A[i] < 0){
+          k++;
+        }
+      }
+      for(i=(0);i<(k);i++){
+        t[nn^1][i] = t[nn][N-k+i];
+      }
+      for(i=(k);i<(N);i++){
+        t[nn^1][i] = t[nn][i-k];
+      }
+      nn ^= 1;
+    }
+    if(nn==1){
+      for(i=(0);i<(N);i++){
+        t[0][i] = t[1][i];
+      }
+    }
+    return;
+  }
+  sort(A, A+N);
+}
+template<class T> void sortA_1_nonint_L(int N, T A[], void *mem = wmem){
+  sort(A,A+N);
+}
+template<class T> void sortA_1_call_L(int N, T A[], void *mem = wmem){
+  sortA_1_nonint_L(N, A, mem);
+}
+template<> void sortA_1_call_L(int N, int A[], void *mem){
+  sortA_1_int_L(N, A, mem);
+}
+template<> void sortA_1_call_L(int N, unsigned A[], void *mem){
+  sortA_1_int_L(N, A, mem);
+}
+template<> void sortA_1_call_L(int N, long long A[], void *mem){
+  sortA_1_int_L(N, A, mem);
+}
+template<> void sortA_1_call_L(int N, unsigned long long A[], void *mem){
+  sortA_1_int_L(N, A, mem);
+}
+template<> void sortA_1_call_L(int N, char A[], void *mem){
+  sortA_1_int_L(N, A, mem);
+}
+template<class T1> void sortA(int N, T1 a[], void *mem = wmem){
+  sortA_1_call_L(N, a, mem);
+}
+template<class T1, class T2> void sortA_2_int_L(int N, T1 A[], T2 B[], void *mem = wmem){
+  int i;
+  int b_a;
+  int b_b;
+  int s1;
+  int s2;
+  int so2;
+  T1 mn1;
+  T1 mx1;
+  T2 mn2;
+  T2 mx2;
+  typename cLtraits_try_make_unsigned<T1>::type r1;
+  typename cLtraits_try_make_unsigned<T2>::type r2;
+  so2 = 1;
+  for(i=(1);i<(N);i++){
+    if(A[i-1] > A[i] || (A[i-1]==A[i] && B[i-1] > B[i])){
+      so2 = 0;
+      break;
+    }
+  }
+  if(so2){
+    return;
+  }
+  so2 = 1;
+  for(i=(1);i<(N);i++){
+    if(A[i-1] > A[i]){
+      so2 = 0;
+      break;
+    }
+  }
+  if(so2==1){
+    int k = 0;
+    for(i=(1);i<(N);i++){
+      if(A[i] != A[i-1]){
+        sortA_1_call_L(i-k, B+k, mem);
+        k = i;
+      }
+    }
+    sortA_1_call_L(N-k, B+k, mem);
+    return;
+  }
+  if(N < 128){
+    sortI(N,A,B,mem);
+    return;
+  }
+  b_a = sort_helper_getbit(A);
+  b_b = sort_helper_getbit(B);
+  if(b_a == -1 || b_b == -1){
+    sortI(N,A,B,mem);
+    return;
+  }
+  mn1 = mx1 = A[0];
+  for(i=(1);i<(N);i++){
+    chmin(mn1, A[i]);
+  }
+  for(i=(1);i<(N);i++){
+    chmax(mx1, A[i]);
+  }
+  mn2 = mx2 = B[0];
+  for(i=(1);i<(N);i++){
+    chmin(mn2, B[i]);
+  }
+  for(i=(1);i<(N);i++){
+    chmax(mx2, B[i]);
+  }
+  if(mn1 < -4611686016279904256LL || mn2 < -4611686016279904256LL || mx1 > 4611686016279904256LL || mx2 > 4611686016279904256LL || mx1-mn1 > 4611686016279904256LL || mx2-mn2 > 4611686016279904256LL){
+    sortI(N,A,B,mem);
+    return;
+  }
+  r1 = (typename cLtraits_try_make_unsigned<T1>::type)(mx1) - (typename cLtraits_try_make_unsigned<T1>::type)(mn1);
+  r2 = (typename cLtraits_try_make_unsigned<T2>::type)(mx2) - (typename cLtraits_try_make_unsigned<T2>::type)(mn2);
+  if(r1 == 0){
+    sortA_1_call_L(N, B, mem);
+    return;
+  }
+  if(r2 == 0){
+    sortA_1_call_L(N, A, mem);
+    return;
+  }
+  if(r1 <= N){
+    so2 = 1;
+    for(i=(1);i<(N);i++){
+      if(B[i-1] > B[i]){
+        so2 = 0;
+        break;
+      }
+    }
+    if(so2 == 1){
+      T1*aa;
+      T2*bb;
+      int*pos;
+      int k;
+      walloc1d(&aa,N,&mem);
+      walloc1d(&bb,N,&mem);
+      walloc1d(&pos,r1+2,&mem);
+      for(i=(0);i<(r1+2);i++){
+        pos[i] = 0;
+      }
+      for(i=(0);i<(N);i++){
+        aa[i] = A[i];
+      }
+      for(i=(0);i<(N);i++){
+        bb[i] = B[i];
+      }
+      for(i=(0);i<(N);i++){
+        pos[(typename cLtraits_try_make_unsigned<T1>::type)((typename cLtraits_try_make_unsigned<T1>::type)aa[i]-(typename cLtraits_try_make_unsigned<T1>::type)mn1)+1]++;
+      }
+      for(i=(1);i<(r1+2);i++){
+        pos[i] += pos[i-1];
+      }
+      for(i=(0);i<(N);i++){
+        k = pos[(typename cLtraits_try_make_unsigned<T1>::type)((typename cLtraits_try_make_unsigned<T1>::type)aa[i]-(typename cLtraits_try_make_unsigned<T1>::type)mn1)+0]++;
+        A[k] = aa[i];
+        B[k] = bb[i];
+      }
+      return;
+    }
+  }
+  s1 = s2 = 1;
+  while( s1 < 64 && r1 >= (1ULL<<s1) ){
+    s1++;
+  }
+  while( s2 < 64 && r2 >= (1ULL<<s2) ){
+    s2++;
+  }
+  if(s1 + s2 <= 32){
+    unsigned*tmp;
+    walloc1d(&tmp,N,&mem);
+    for(i=(0);i<(N);i++){
+      tmp[i] = (((unsigned)((int)A[i]-(int)mn1)) << s2) | ((unsigned)((int)B[i]-(int)mn2));
+    }
+    sortA_1_call_L(N, tmp, mem);
+    for(i=(0);i<(N);i++){
+      A[i] = ((int)(tmp[i] >> s2)) + ((int)mn1);
+      B[i] = ((int)(tmp[i] & ((1U<<s2)-1))) + ((int)mn2);
+    }
+    return;
+  }
+  if(s1 + s2 <= 64){
+    unsigned long long*tmp;
+    walloc1d(&tmp,N,&mem);
+    for(i=(0);i<(N);i++){
+      tmp[i] = (((unsigned long long)((long long)A[i]-(long long)mn1)) << s2) | ((unsigned long long)((long long)B[i]-(long long)mn2));
+    }
+    sortA_1_call_L(N, tmp, mem);
+    for(i=(0);i<(N);i++){
+      A[i] = ((long long)(tmp[i] >> s2)) + ((long long)mn1);
+      B[i] = ((long long)(tmp[i] & ((1ULL<<s2)-1))) + ((long long)mn2);
+    }
+    return;
+  }
+  sortI(N,A,B,mem);
+}
+template<class T1, class T2> void sortA_2_nonint_L(int N, T1 A[], T2 B[], void *mem = wmem){
+  sortI(N,A,B,mem);
+}
+template<class T1, class T2> void sortA_2_call_L(int N, T1 A[], T2 B[], void *mem = wmem){
+  sortA_2_nonint_L(N, A, B, mem);
+}
+template<class T2> void sortA_2_call_L(int N, int A[], T2 B[], void *mem){
+  sortA_2_int_L(N, A, B, mem);
+}
+template<class T2> void sortA_2_call_L(int N, unsigned A[], T2 B[], void *mem){
+  sortA_2_int_L(N, A, B, mem);
+}
+template<class T2> void sortA_2_call_L(int N, long long A[], T2 B[], void *mem){
+  sortA_2_int_L(N, A, B, mem);
+}
+template<class T2> void sortA_2_call_L(int N, unsigned long long A[], T2 B[], void *mem){
+  sortA_2_int_L(N, A, B, mem);
+}
+template<class T2> void sortA_2_call_L(int N, char A[], T2 B[], void *mem){
+  sortA_2_int_L(N, A, B, mem);
+}
+template<class T1, class T2> void sortA(int N, T1 a[], T2 b[], void *mem = wmem){
+  sortA_2_call_L(N, a, b, mem);
+}
+template<class T1, class T2, class T3> void sortA(int N, T1 a[], T2 b[], T3 c[], void *mem = wmem){
+  int i;
+  pair<T1, pair<T2, T3> >*arr;
+  walloc1d(&arr, N, &mem);
+  for(i=(0);i<(N);i++){
+    arr[i].first = a[i];
+    arr[i].second.first = b[i];
+    arr[i].second.second = c[i];
+  }
+  sort(arr, arr+N);
+  for(i=(0);i<(N);i++){
+    a[i] = arr[i].first;
+    b[i] = arr[i].second.first;
+    c[i] = arr[i].second.second;
+  }
+}
+template<class T1, class T2, class T3, class T4> void sortA(int N, T1 a[], T2 b[], T3 c[], T4 d[], void *mem = wmem){
+  int i;
+  pair<pair<T1, T2>, pair<T3, T4> >*arr;
+  walloc1d(&arr, N, &mem);
+  for(i=(0);i<(N);i++){
+    arr[i].first.first = a[i];
+    arr[i].first.second = b[i];
+    arr[i].second.first = c[i];
+    arr[i].second.second = d[i];
+  }
+  sort(arr, arr+N);
+  for(i=(0);i<(N);i++){
+    a[i] = arr[i].first.first;
+    b[i] = arr[i].first.second;
+    c[i] = arr[i].second.first;
+    d[i] = arr[i].second.second;
+  }
+}
+template<class T1, class T2> void sortA_index(int N, T1 a[], T2 b[], void *mem = wmem){
+  int i;
+  for(i=(0);i<(N);i++){
+    b[i] = i;
+  }
+  sortA(N,a,b,mem);
+}
+template<class T1, class T2, class T3> void sortA_index(int N, T1 a[], T2 b[], T3 c[], void *mem = wmem){
+  int i;
+  for(i=(0);i<(N);i++){
+    c[i] = i;
+  }
+  sortA(N,a,b,c,mem);
+}
+template<class T1, class T2, class T3, class T4> void sortA_index(int N, T1 a[], T2 b[], T3 c[], T4 d[], void *mem = wmem){
+  int i;
+  for(i=(0);i<(N);i++){
+    d[i] = i;
+  }
+  sortA(N,a,b,c,d,mem);
+}
+struct graph{
+  int N;
+  int*es;
+  int**edge;
+  void setEdge(int N__, int M, int A[], int B[], void **mem = &wmem){
+    int i;
+    N = N__;
+    walloc1d(&es, N, mem);
+    walloc1d(&edge, N, mem);
+    for(i=(0);i<(N);i++){
+      es[i] = 0;
+    }
+    for(i=(0);i<(M);i++){
+      es[A[i]]++;
+      es[B[i]]++;
+    }
+    for(i=(0);i<(N);i++){
+      walloc1d(&edge[i], es[i], mem);
+    }
+    for(i=(0);i<(N);i++){
+      es[i] = 0;
+    }
+    for(i=(0);i<(M);i++){
+      edge[A[i]][es[A[i]]++] = B[i];
+      edge[B[i]][es[B[i]]++] = A[i];
+    }
+  }
+  void getDist(int root, int res[], void *mem = wmem){
+    int i;
+    int j;
+    int k;
+    int*q;
+    int s;
+    int z;
+    walloc1d(&q, N, &mem);
+    for(i=(0);i<(N);i++){
+      res[i]=-1;
+    }
+    res[root]=0;
+    s=0;
+    z=1;
+    q[0]=root;
+    while(z){
+      i=q[s++];
+      z--;
+      for(j=(0);j<(es[i]);j++){
+        k=edge[i][j];
+        if(res[k]>=0){
+          continue;
+        }
+        res[k]=res[i]+1;
+        q[s+z++]=k;
+      }
+    }
+  }
+  int getDist(int a, int b, void *mem = wmem){
+    int i;
+    int j;
+    int k;
+    int*q;
+    int s;
+    int z;
+    int*d;
+    if(a==b){
+      return 0;
+    }
+    walloc1d(&d, N, &mem);
+    walloc1d(&q, N, &mem);
+    for(i=(0);i<(N);i++){
+      d[i] = -1;
+    }
+    d[a] = 0;
+    s = 0;
+    z = 1;
+    q[0] = a;
+    while(z){
+      i = q[s++];
+      z--;
+      for(j=(0);j<(es[i]);j++){
+        k = edge[i][j];
+        if(d[k] >= 0){
+          continue;
+        }
+        d[k] = d[i] + 1;
+        if(k==b){
+          return d[k];
+        }
+        q[s+z++] = k;
+      }
+    }
+    return -1;
+  }
+}
+;
+template<class T, class S> inline int vec2arr(vector<T> &v, S arr[]){
+  int i;
+  int N = v.size();
+  for(i=(0);i<(N);i++){
+    arr[i] = v[i];
+  }
+  return N;
+}
+template<class T, class S1, class S2> inline int vec2arr(vector<vector<T>> &v, S1 arr1[], S2 arr2[]){
+  int i;
+  int N = v.size();
+  for(i=(0);i<(N);i++){
+    arr1[i] = v[i][0];
+    arr2[i] = v[i][1];
+  }
+  return N;
+}
+template<class T, class S1, class S2, class S3> inline int vec2arr(vector<vector<T>> &v, S1 arr1[], S2 arr2[], S3 arr3[]){
+  int i;
+  int N = v.size();
+  for(i=(0);i<(N);i++){
+    arr1[i] = v[i][0];
+    arr2[i] = v[i][1];
+    arr3[i] = v[i][2];
+  }
+  return N;
+}
+#define main dummy_main
+int main(){
+  wmem = memarr;
+  return 0;
+}
+#undef main
+int N;
+int M;
+int A[1000000];
+int B[1000000];
+graph g;
+int dist[1000000];
+int ind[1000000];
+int dist2[1000000];
+long long v[1000000];
+int xx[1000000];
+int yy[1000000];
+long long vv[1000000];
+class Solution{
+  public:
+  vector<vector<int>> constructGridLayout(int n, vector<vector<int>>& edges){
+    dummy_main();
+    int i;
+    int j;
+    int k;
+    int d;
+    int mx;
+    int x;
+    int y;
+    int a;
+    int b;
+    N = n;
+    M = vec2arr(edges, A, B);
+    g.setEdge(N,M,A,B);
+    for(i=(0);i<(N);i++){
+      if(g.es[i]==1){
+        break;
+      }
+    }
+    if(i!=N){
+      g.getDist(i, dist);
+      for(i=(0);i<(N);i++){
+        ind[i] = i;
+      }
+      sortA(N, dist, ind);
+      vector<vector<int>> res(1, vector<int>(N));
+      for(i=(0);i<(N);i++){
+        res[0][i] = ind[i];
+      }
+      return res;
+    }
+    for(i=(0);i<(N);i++){
+      if(g.es[i]==2){
+        break;
+      }
+    }
+    g.getDist(i, dist);
+    mx = 1073709056;
+    for(j=(0);j<(N);j++){
+      if(i!=j && g.es[j]==2){
+        chmin(mx, dist[j]);
+      }
+    }
+    for(j=(0);j<(N);j++){
+      if(i!=j && g.es[j]==2 && mx == dist[j]){
+        break;
+      }
+    }
+    g.getDist(j, dist2);
+    y = dist[j] + 1;
+    x = n / y;
+    vector<vector<int>> res(x, vector<int>(y));
+    for(i=(0);i<(N);i++){
+      v[i] = (long long)dist[i]*1000000000 + dist2[i];
+    }
+    sortA_index(N,v,ind);
+    k = 0;
+    for(i=(0);i<(x);i++){
+      for(j=(0);j<(y);j++){
+        xx[k] = i;
+        yy[k] = j;
+        vv[k] = (long long)(i+j)*1000000000 + (i+y-j);
+        k++;
+      }
+    }
+    sortA(N, vv, xx, yy);
+    for(i=(0);i<(N);i++){
+      res[xx[i]][yy[i]] = ind[i];
+    }
+    return res;
+  }
+}
+;
+// cLay version 20240810-1 [beta]
+
+// --- original code ---
+// #define main dummy_main
+// {}
+// #undef main
+// 
+// int N, M, A[1d6], B[1d6];
+// graph g;
+// int dist[1d6], ind[1d6];
+// int dist2[1d6];
+// ll v[1d6];
+// int xx[1d6], yy[1d6]; ll vv[1d6];
+// 
+// class Solution {
+// public:
+//   vector<vector<int>> constructGridLayout(int n, vector<vector<int>>& edges) {
+//     dummy_main();
+//     int i, j, k, d, mx;
+//     int x, y, a, b;
+// 
+//     N = n;
+//     M = vec2arr(edges, A, B);
+//     g.setEdge(N,M,A,B);
+// 
+//     rep(i,N) if(g.es[i]==1) break;
+//     if(i!=N){
+//       g.getDist(i, dist);
+//       rep(i,N) ind[i] = i;
+//       sortA(N, dist, ind);
+//       VVI res(1, VI(N));
+//       rep(i,N) res[0][i] = ind[i];
+//       return res;
+//     }
+// 
+//     rep(i,N) if(g.es[i]==2) break;
+//     g.getDist(i, dist);
+// 
+//     mx = int_inf;
+//     rep(j,N) if(i!=j && g.es[j]==2) mx <?= dist[j];
+//     rep(j,N) if(i!=j && g.es[j]==2 && mx == dist[j]) break;
+// 
+//     g.getDist(j, dist2);
+// 
+//     y = dist[j] + 1;
+//     x = n / y;
+// 
+//     VVI res(x, VI(y));
+// 
+//     rep(i,N) v[i] = (ll)dist[i]*1d9 + dist2[i];
+//     sortA_index(N,v,ind);
+// 
+//     k = 0;
+//     rep(i,x) rep(j,y) xx[k] = i, yy[k] = j, vv[k] = (ll)(i+j)*1d9 + (i+y-j), k++;
+//     sortA(N, vv, xx, yy);
+// 
+//     rep(i,N) res[xx[i]][yy[i]] = ind[i];
+// 
+//     return res;
+//   }
+// };
+",1413201504
+LayCurse,LayCurse,19,3579,cpp,"#pragma GCC optimize(""Ofast"")
+#pragma GCC optimize(""unroll-loops"")
+#pragma GCC optimize(""inline"")
+#include<bits/stdc++.h>
+using namespace std;
+template<class S, class T> inline S chmax(S &a, T b){
+  if(a<b){
+    a=b;
+  }
+  return a;
+}
+#define main dummy_main
+int main(){
+  return 0;
+}
+#undef main
+string tos(int i){
+  string res;
+  while(i > 0){
+    res += (char)('0' + i%2);
+    i /= 2;
+  }
+  reverse(res.begin(), res.end());
+  return res;
+}
+class Solution{
+  public:
+  int maxGoodNumber(vector<int>& nums){
+    int i;
+    string s[3];
+    string m;
+    int res = 0;
+    for(i=(0);i<(3);i++){
+      s[i] = tos(nums[i]);
+    }
+    sort(s,s+3);
+    do{
+      chmax(m, s[0] + s[1] + s[2]);
+    }
+    while(next_permutation(s,s+3));
+    for(i=(0);i<(m.size());i++){
+      res = 2 * res + m[i] - '0';
+    }
+    return res;
+  }
+}
+;
+// cLay version 20240810-1 [beta]
+
+// --- original code ---
+// #define main dummy_main
+// {}
+// #undef main
+// 
+// string tos(int i){
+//   string res;
+//   while(i > 0){
+//     res += (char)('0' + i%2);
+//     i /= 2;
+//   }
+//   reverse(res.begin(), res.end());
+//   return res;
+// }
+// 
+// class Solution {
+// public:
+//   int maxGoodNumber(vector<int>& nums) {
+//     string s[3], m;
+//     int res = 0;
+//     rep(i,3) s[i] = tos(nums[i]);
+//     sort(s,s+3);
+//     do{
+//       m >?= s[0] + s[1] + s[2];
+//     }while(next_permutation(s,s+3));
+//     rep(i,m.size()) res = 2 * res + m[i] - '0';
+//     return res;
+//   }
+// };
+",1413161662
+LayCurse,LayCurse,19,3583,cpp,"#pragma GCC optimize(""Ofast"")
+#pragma GCC optimize(""unroll-loops"")
+#pragma GCC optimize(""inline"")
+#include<bits/stdc++.h>
+using namespace std;
+template<class S, class T> inline S chmax(S &a, T b){
+  if(a<b){
+    a=b;
+  }
+  return a;
+}
+#define main dummy_main
+int main(){
+  return 0;
+}
+#undef main
+int mx;
+long long hist[1000000];
+long long cnt[1000000];
+long long cnts[1000000];
+class Solution{
+  public:
+  vector<int> gcdValues(vector<int>& nums, vector<long long>& queries){
+    int i;
+    int j;
+    int k;
+    int N = nums.size();
+    long long c;
+    vector<int> res;
+    for(i=(0);i<(nums.size());i++){
+      chmax(mx, nums[i]);
+    }
+    mx += 2;
+    for(i=(0);i<(mx);i++){
+      hist[i] = 0;
+    }
+    for(i=(0);i<(nums.size());i++){
+      hist[nums[i]]++;
+    }
+    for(i=(0);i<(mx);i++){
+      cnt[i] = 0;
+    }
+    for(i=(1);i<(mx);i++){
+      c = 0;
+      for(j=(i);j<(mx);j+=(i)){
+        c += hist[j];
+      }
+      cnt[i] = c * (c-1) / 2;
+    }
+    for(i=(mx)-1;i>=(1);i--){
+      for(j=(2*i);j<(mx);j+=(i)){
+        cnt[i] -= cnt[j];
+      }
+    }
+    cnts[0] = cnt[0];
+    for(i=(1);i<(mx);i++){
+      cnts[i] = cnt[i] + cnts[i-1];
+    }
+    for(long long q: queries){
+      k = lower_bound(cnts,cnts+mx,q+1) - cnts;
+      res.push_back(k);
+    }
+    return res;
+  }
+}
+;
+// cLay version 20240810-1 [beta]
+
+// --- original code ---
+// #define main dummy_main
+// {}
+// #undef main
+// 
+// int mx; ll hist[1d6];
+// 
+// ll cnt[1d6], cnts[1d6];
+// 
+// class Solution {
+// public:
+//   vector<int> gcdValues(vector<int>& nums, vector<long long>& queries) {
+//     int i, j, k, N = nums.size();
+//     ll c;
+//     VI res;
+// 
+//     rep(i,nums.size()) mx >?= nums[i];
+//     mx += 2;
+//     rep(i,mx) hist[i] = 0;
+//     rep(i,nums.size()) hist[nums[i]]++;
+// 
+//     rep(i,mx) cnt[i] = 0;
+//     rep(i,1,mx){
+//       c = 0;
+//       rep(j,i,mx,i) c += hist[j];
+//       cnt[i] = c * (c-1) / 2;
+//     }
+// 
+//     // wt(cnt(mx));
+// 
+//     rrep(i,1,mx){
+//       rep(j,2*i,mx,i) cnt[i] -= cnt[j];
+//     }
+// 
+//     // wt(cnt(mx));
+//     // puts("""");
+// 
+//     cnts[0] = cnt[0];
+//     rep(i,1,mx) cnts[i] = cnt[i] + cnts[i-1];
+// 
+//     for(ll q: queries){
+//       k = lower_bound(cnts,cnts+mx,q+1) - cnts;
+//       res.push_back(k);
+//     }
+// 
+//     return res;
+//   }
+// };
+",1413216467
+Alex Wice,awice,20,3561,python3,"class Solution:
+    def remainingMethods(self, n: int, k: int, edges: List[List[int]]) -> List[int]:
+        adj = [[] for _ in range(n)]
+        for u,v in edges:
+            adj[u].append(v)
+        
+        queue = [k]
+        seen = [0] * n
+        seen[k] = 1
+        for node in queue:
+            for nei in adj[node]:
+                if not seen[nei]:
+                    seen[nei] = 1
+                    queue.append(nei)
+        
+        #print(""!"", seen, adj)
+        for u, row in enumerate(adj):
+            if seen[u]: continue
+            for v in row:
+                if seen[v]:
+                    return list(range(n))
+        
+        return [u for u in range(n) if not seen[u]]",1413162821
+Alex Wice,awice,20,3578,python3,"class Solution:
+    def constructGridLayout(self, n: int, edges: List[List[int]]) -> List[List[int]]:
+        deg = [0] * n
+        adj = [[] for _ in range(n)]
+        for u,v in edges:
+            deg[u] += 1
+            deg[v] += 1
+            adj[u].append(v)
+            adj[v].append(u)
+        if 1 in deg:
+            ans = [None] * n
+            node = deg.index(1)
+            ans[0] = node
+            seen = [0] * n
+            seen[node] = 1
+            for i in range(1, n):
+                for nei in adj[ans[i-1]]:
+                    if not seen[nei]:
+                        ans[i] = nei
+                        seen[nei] = 1
+                        break
+            return [[x] for x in ans]
+        
+        count3 = deg.count(3)
+        count4 = deg.count(4)
+        RplusC = (count3 + 8) // 2
+        RtimesC = count4 - 4 + 2 * RplusC
+        S,P = RplusC, RtimesC
+        discrim = S*S - 4*P
+        discrim = int(isqrt(discrim))
+        R = (S - discrim) // 2
+        C = (S + discrim) // 2
+        R, C = sorted([R, C])
+        
+        
+        root = deg.index(2)
+        seen = [0] * n
+        if not count4:
+            for nei in adj[root]:
+                if deg[nei] == 2:
+                    root2 = nei
+                    break
+            path = [root, root2]
+            seen[root] = seen[root2] = 1
+        
+        else:
+            path = [root]
+            seen = [0] * n
+            seen[root] = 1
+            for node in path:
+                if deg[node] <= 2 and len(path) > 1: break
+                for nei in adj[node]:
+                    if not seen[nei] and deg[nei] <= 3:
+                        path.append(nei)
+                        seen[nei] = 1
+                        break
+
+        length = len(path)
+        if length != C:
+            R, C = C, R
+        ans = [[0] * C for _ in range(R)]
+        ans[0] = path
+        for r in range(1, R):
+            for c in range(C):
+                for nei in adj[ans[r-1][c]]:
+                    if not seen[nei]:
+                        seen[nei] = 1
+                        ans[r][c] = nei
+                        break
+        
+        return ans
+        ",1413191005
+Alex Wice,awice,20,3579,python3,"class Solution:
+    def maxGoodNumber(self, nums: List[int]) -> int:
+        B = [bin(x)[2:] for x in nums]
+        ans = 0
+        for p in permutations(B):
+            s = """".join(p)
+            cand = int(s, 2)
+            ans = max(ans, cand)
+        return ans",1413159882
+Alex Wice,awice,20,3583,python3,"# MX = 50001
+# divisors = [[] for _ in range(MX)]
+# for x in range(1, MX):
+#     for y in range(x, MX, x):
+#         divisors[y].append(x)
+        
+class Solution:
+    def gcdValues(self, A: List[int], queries: List[int]) -> List[int]:
+        #queries = [[q,qi] for qi, q in enumerate(queries)]
+        #queries.sort()
+        A.sort()
+        
+        count = Counter(A)
+        M = max(A)
+        count2 = Counter()
+        for k, v in count.items():
+            for g in range(1, int(k**0.5) + 1):
+                if k % g == 0:
+                    count2[g] += v
+                    if g != k // g:
+                        count2[k // g] += v
+        
+        count3 = Counter()
+        for g in range(1, M + 1)[::-1]:
+            c = count2[g]
+            count3[g] = c*(c-1)//2
+            for x in range(2*g, M+1, g): count3[g] -= count3[x]
+        
+        glist = []
+        counts = []
+        tot = 0
+        for g, v in count3.items():
+            if v <= 0: continue
+            glist.append(g)
+            counts.append(v)
+            tot += v
+        
+        Pcounts = list(accumulate(counts, initial = 0))
+        ans = []
+        n = len(A)
+        for q in queries:
+            q = n*(n-1)//2 -1 - q
+            i = bisect.bisect_left(Pcounts, q + 1) - 1
+            ans.append(glist[i])
+        return ans",1413209788
+plevande,plevande,23,3561,python3,"class Solution:
+    def remainingMethods(self, n: int, k: int, invocations: List[List[int]]) -> List[int]:
+        g = [[] for i in range(n)]
+        g2 = [[] for i in range(n)]
+        for a, b in invocations:
+            g[a].append(b)
+            g2[b].append(a)
+        sus = [0 for i in range(n)]
+        sus[k] = 1 
+        start = [k]
+        while len(start) > 0:
+            next_s = []
+            for x in start:
+                for y in g[x]:
+                    if sus[y]==0:
+                        sus[y] = 1 
+                        next_s.append(y)
+            start = next_s 
+        works = True 
+        for i in range(n):
+            if sus[i]==1:
+                for j in g2[i]:
+                    if sus[j]==0:
+                        works = False 
+                        break
+        if works:
+            return [i for i in range(n) if sus[i]==0]
+        else:
+            return [i for i in range(n)]
+        ",1413163309
+plevande,plevande,23,3578,python3,"class Solution:
+    def constructGridLayout(self, n: int, edges: List[List[int]]) -> List[List[int]]:
+        g = [[] for i in range(n)]
+        for a, b in edges:
+            g[a].append(b)
+            g[b].append(a)
+        for i in range(n):
+            if len(g[i])==1:
+                used = [0 for j in range(n)]
+                used[i] = 1 
+                answer = [i]
+                start = [i]
+                while len(start) > 0:
+                    next_s = []
+                    for x in start:
+                        for y in g[x]:
+                            if used[y]==0:
+                                used[y] = 1 
+                                answer.append(y)
+                                next_s.append(y)
+                    start = next_s 
+                return [answer]
+        for i in range(n):
+            if len(g[i])==2:
+                start = [[i]]
+                parent = [None for j in range(n)]
+                parent[i] = -1 
+                depth = [None for j in range(n)]
+                depth[i] = 0
+                while True:
+                    next_s = []
+                    for x in start[-1]:
+                        for y in g[x]:
+                            if len(g[y]) != 4 and parent[y] is None:
+                                parent[y] = x 
+                                depth[y] = 1+depth[x]
+                                next_s.append(y)
+                    if len(next_s)==0:
+                        break 
+                    start.append(next_s)
+                corners = [depth[j] for j in range(n) if depth[j] is not None and len(g[j])==2]
+                a, b, c, d =  sorted(corners)
+                #dimension = 0, m-1, n-1, m+n-1
+                h = b+1 
+                w = c+1
+                grid = [[None for j1 in range(w)] for j2 in range(h)]
+                grid[0][0] = i 
+                used = [0 for j in range(n)]
+                for j in range(n):
+                    if depth[j]==h-1 and len(g[j])==2 and used[j]==0:
+                        path = [j]
+                        while True:
+                            x = path[-1]
+                            y = parent[x]
+                            if y != -1:
+                                path.append(y)
+                            else:
+                                break 
+                        path = path[::-1]
+                        for j1 in range(h):
+                            grid[j1][0] = path[j1]
+                            used[path[j1]] = [j1, 0]
+                        break
+                for j in range(n):
+                    if depth[j]==w-1 and len(g[j])==2 and used[j]==0:
+                        path = [j]
+                        while True:
+                            x = path[-1]
+                            y = parent[x]
+                            if y != -1:
+                                path.append(y)
+                            else:
+                                break 
+                        path = path[::-1]
+                        for j1 in range(w):
+                            grid[0][j1] = path[j1]
+                            used[path[j1]] = [0, j1]
+                        break
+                for i1 in range(h):
+                    for j1 in range(w):
+                        if grid[i1][j1] is None:
+                            x = grid[i1-1][j1]
+                            y = grid[i1][j1-1]
+                            for z in g[x]:
+                                if z in g[y] and used[z]==0:
+                                    used[z] = [i1, j1]
+                                    grid[i1][j1] = z 
+                return grid",1413220564
+plevande,plevande,23,3579,python3,"class Solution:
+    def maxGoodNumber(self, nums: List[int]) -> int:
+        nums = [bin(x)[2:] for x in nums]
+        a, b, c = nums 
+        answer = 0 
+        def change(S):
+            m = len(S)
+            answer = 0 
+            for i in range(m):
+                if S[i]=='1':
+                    answer+=2**(m-1-i)
+            return answer 
+        for S in [a+b+c, a+c+b, b+a+c, b+c+a, c+a+b, c+b+a]:
+            answer = max(answer, change(S))
+        return answer
+        ",1413160585
+plevande,plevande,23,3583,python3,"from collections import Counter
+
+
+def gcd(x, y):
+    """"""greatest common divisor of x and y""""""
+    while y:
+        x, y = y, x % y
+    return x
+
+
+def memodict(f):
+    """"""memoization decorator for a function taking a single argument""""""
+    class memodict(dict):
+        def __missing__(self, key):
+            ret = self[key] = f(key)
+            return ret
+
+    return memodict().__getitem__
+
+
+def pollard_rho(n):
+    """"""returns a random factor of n""""""
+    if n & 1 == 0:
+        return 2
+    if n % 3 == 0:
+        return 3
+
+    s = ((n - 1) & (1 - n)).bit_length() - 1
+    d = n >> s
+    for a in [2, 325, 9375, 28178, 450775, 9780504, 1795265022]:
+        p = pow(a, d, n)
+        if p == 1 or p == n - 1 or a % n == 0:
+            continue
+        for _ in range(s):
+            prev = p
+            p = (p * p) % n
+            if p == 1:
+                return gcd(prev - 1, n)
+            if p == n - 1:
+                break
+        else:
+            for i in range(2, n):
+                x, y = i, (i * i + 1) % n
+                f = gcd(abs(x - y), n)
+                while f == 1:
+                    x, y = (x * x + 1) % n, (y * y + 1) % n
+                    y = (y * y + 1) % n
+                    f = gcd(abs(x - y), n)
+                if f != n:
+                    return f
+    return n
+
+
+@memodict
+def prime_factors(n):
+    """"""returns a Counter of the prime factorization of n""""""
+    if n <= 1:
+        return Counter()
+    f = pollard_rho(n)
+    return Counter([n]) if f == n else prime_factors(f) + prime_factors(n // f)
+
+
+def distinct_factors(n):
+    """"""returns a list of all distinct factors of n""""""
+    factors = [1]
+    for p, exp in prime_factors(n).items():
+        factors += [p**i * factor for factor in factors for i in range(1, exp + 1)]
+    return factors
+
+
+def all_factors(n):
+    """"""returns a sorted list of all distinct factors of n""""""
+    small, large = [], []
+    for i in range(1, int(n**0.5) + 1, 2 if n & 1 else 1):
+        if not n % i:
+            small.append(i)
+            large.append(n // i)
+    if small[-1] == large[-1]:
+        large.pop()
+    large.reverse()
+    small.extend(large)
+    return small
+
+class Solution:
+    def gcdValues(self, nums: List[int], queries: List[int]) -> List[int]:
+        d = {}
+        for x in nums:
+            for y in distinct_factors(x):
+                if y not in d:
+                    d[y] = 0
+                d[y]+=1
+        L = []
+        #if 8 divides 10 things 
+        #and 16 divides 5 things
+        #and 40 divies 6 things 
+        m = max(nums)
+        sign = [0 for i in range(m+1)]
+        for i in range(1, m+1):
+            f = prime_factors(i)
+            s = 1 
+            for p in f:
+                if f[p]==1:
+                    s = s*(-1)**f[p]
+                else:
+                    s = 0
+            sign[i] = s 
+        L = []
+        m = max(nums)
+        for x in sorted(d):
+            entry = 0
+            for i in range(1, m+1):
+                if i*x > m+1:
+                    break 
+                if i*x in d:
+                    c = d[i*x]
+                    s = sign[i]
+                    entry+=(s*c*(c-1)//2)
+            if entry != 0:
+                if len(L)==0:
+                    L.append([x, entry])
+                else:
+                    L.append([x, L[-1][1]+entry])
+        answer = []
+        for k in queries:
+            if k+1 <= L[0][1]:
+                answer.append(L[0][0])
+            else:
+                #L[0][1] < k+1 <= L[-1][1]
+                s = 0 
+                e = len(L)-1
+                while s+1 < e:
+                    m = (s+e)//2
+                    if L[m][1] < k+1:
+                        s, e = m, e 
+                    else:
+                        s, e = s, m 
+                answer.append(L[e][0])
+        return answer
+
+        ",1413207591
+Yiming Li,lympanda,25,3561,cpp,"vector<int> a[110000];
+int used[110000];
+
+class Solution {
+public:
+    vector<int> remainingMethods(int n, int k, vector<vector<int>>& e) {
+        int i,j,x,y,b1;
+        vector<int> q;
+        vector<int> ans;
+        for (i=0;i<n;i++)
+        {
+            a[i].clear();
+            used[i]=0;
+        }
+        for (i=0;i<e.size();i++)
+        {
+            x=e[i][0];
+            y=e[i][1];
+            a[x].push_back(y);
+        }
+        q.clear();
+        q.push_back(k);
+        used[k]=1;
+        for (i=0;i<q.size();i++)
+        {
+            x=q[i];
+            for (j=0;j<a[x].size();j++)
+            {
+                y=a[x][j];
+                if (used[y]==1) continue;
+                used[y]=1;
+                q.push_back(y);
+            }
+        }
+        ans.clear();
+        b1=1;
+        for (i=0;i<n;i++)
+        {
+            if (used[i]==1) continue;
+            ans.push_back(i);
+            for (j=0;j<a[i].size();j++)
+            {
+                y=a[i][j];
+                if (used[y]==1) b1=0;
+            }
+        }
+        if (b1==0)
+        {
+            ans.clear();
+            for (i=0;i<n;i++)
+                ans.push_back(i);
+        }
+        return ans;
+
+        
+    }
+};",1413168096
+Yiming Li,lympanda,25,3578,cpp,"int du[110000];
+int du2[110000];
+int cnt[10];
+int used[110000];
+vector<int> a[110000];
+vector<int> pre[110000];
+pair<int,int> pos[110000];
+
+class Solution {
+public:
+    vector<vector<int>> constructGridLayout(int n, vector<vector<int>>& e) {
+        int i,j,k,x,y,o,mm,nn,now,xx,yy,y1,y2;
+        vector<int> q;
+        vector<int> qq[2];
+        vector<vector<int>> ans;
+        vector<int> tmp;
+        for (i=0;i<n;i++)
+        {
+            du[i]=0;
+            a[i].clear();
+        }
+        for (i=0;i<e.size();i++)
+        {
+            x=e[i][0];
+            y=e[i][1];
+            du[x]++;
+            du[y]++;
+            a[x].push_back(y);
+            a[y].push_back(x);
+        }
+        memset(cnt,0,sizeof(cnt));
+        for (i=0;i<n;i++)
+            cnt[du[i]]++;
+        if (cnt[1]>0)
+        {
+            for (i=0;i<n;i++)
+                used[i]=0;
+            q.clear();
+            for (i=0;i<n;i++)
+            {
+                if (du[i]==1)
+                {
+                    q.push_back(i);
+                    used[i]=1;
+                    break;
+                }
+            }
+            for (i=0;i<q.size();i++)
+            {
+                x=q[i];
+                for (j=0;j<a[x].size();j++)
+                {
+                    y=a[x][j];
+                    if (used[y]==1) continue;
+                    q.push_back(y);
+                    used[y]=1;
+                }
+            }
+            ans.clear();
+            for (i=0;i<q.size();i++)
+            {
+                tmp.clear();
+                tmp.push_back(q[i]);
+                ans.push_back(tmp);
+            }
+            return ans;
+        }
+        for (o=1;o*o<=n;o++)
+        {
+            if (n%o!=0) continue;
+            mm=o;
+            nn=n/o;
+            if (e.size()!=n+n-mm-nn) continue;
+            //cout<<""o:""<<o<<endl;
+            for (i=0;i<n;i++)
+            {
+                used[i]=0;
+                pre[i].clear();
+            }
+            ans.clear();
+            ans.clear();
+            qq[0].clear();
+            for (i=0;i<n;i++)
+                if (du[i]==2)
+                {
+                    qq[0].push_back(i);
+                    used[i]=1;
+                    pos[i]=make_pair(0,0);
+                    tmp.clear();
+                    tmp.push_back(i);
+                    ans.push_back(tmp);
+                    break;
+                }
+            now=0;
+            while (1)
+            {
+                qq[1-now].clear();
+                for (i=0;i<qq[now].size();i++)
+                {
+                    x=qq[now][i];
+                    for (j=0;j<a[x].size();j++)
+                    {
+                        y=a[x][j];
+                        if (used[y]==1) continue;
+                        pre[y].push_back(x);
+                    }
+                }
+                for (i=0;i<qq[now].size();i++)
+                {
+                    x=qq[now][i];
+                    for (j=0;j<a[x].size();j++)
+                    {
+                        y=a[x][j];
+                        if (used[y]==1) continue;
+                        qq[1-now].push_back(y);
+                        used[y]=1;
+                    }
+                }
+
+                now=1-now;
+                if (qq[now].size()==0) break;
+                for (i=0;i<qq[now].size();i++)
+                {
+                    x=qq[now][i];
+                    if (pre[x].size()==1)
+                    {
+                        y=pre[x][0];
+                        //cout<<""x,y:""<<x<<"" ""<<y<<endl;
+                        xx=pos[y].first;
+                        yy=pos[y].second;
+                        if (ans[xx].size()==yy+1)
+                        {
+                            ans[xx].push_back(x);
+                            pos[x]=make_pair(xx,yy+1);
+                        }
+                        else
+                        {
+                            tmp.clear();
+                            tmp.push_back(x);
+                            ans.push_back(tmp);
+                            pos[x]=make_pair(xx+1,yy);
+                        }
+                    }
+                    else
+                    {
+                        y1=pre[x][0];
+                        y2=pre[x][1];
+                        xx=max(pos[y1].first,pos[y2].first);
+                        yy=max(pos[y1].second,pos[y2].second);
+                        ans[xx].push_back(x);
+                        pos[x]=make_pair(xx,yy);
+                    }
+                }
+            }
+            return ans;
+        }
+        return ans;
+    }
+};",1413224430
+Yiming Li,lympanda,25,3579,cpp,"class Solution {
+public:
+    int maxGoodNumber(vector<int>& a) {
+        int i,j,x,tmp,ans;
+        sort(a.begin(),a.end());
+        ans=0;
+        do
+        {
+            tmp=0;
+            for (i=0;i<3;i++)
+            {
+                x=1;
+                while (x<=a[i]) x*=2;
+                tmp*=x;
+                tmp+=a[i];
+            }
+            ans=max(ans,tmp);
+        }while (next_permutation(a.begin(),a.end()));
+        return ans;
+    }
+};",1413160604
+Yiming Li,lympanda,25,3583,cpp,"#define _int64 long long
+
+int cnt[51000];
+_int64 gcnt[51000];
+
+class Solution {
+public:
+    vector<int> gcdValues(vector<int>& a, vector<long long>& queries) {
+        int i,j,n,ll,rr,mid,o;
+        _int64 tot,v;
+        vector<int> ans;
+        n=a.size();
+        memset(cnt,0,sizeof(cnt));
+        for (i=0;i<n;i++)
+            cnt[a[i]]++;
+        for (i=50000;i>=1;i--)
+        {
+            tot=0;
+            for (j=i;j<=50000;j+=i)
+                tot+=cnt[j];
+            gcnt[i]=tot*(tot-1)/2;
+            for (j=i+i;j<=50000;j+=i)
+                gcnt[i]-=gcnt[j];
+        }
+        for (i=1;i<50000;i++)
+            gcnt[i+1]+=gcnt[i];
+        ans.clear();
+        for (o=0;o<queries.size();o++)
+        {
+            v=queries[o];
+            ll=-1;
+            rr=50001;
+            while (rr-ll>1)
+            {
+                mid=(ll+rr)/2;
+                if (gcnt[mid]>=v+1) rr=mid;
+                else ll=mid;
+            }
+            ans.push_back(rr);
+        }
+        return ans;
+    }
+};",1413198713
