@@ -5,25 +5,12 @@ require('dotenv').config();
 
 const app = express();
 
-// Define allowed origins (your frontend domain)
-const allowedOrigins = ['https://cheatheon.vercel.app/', 'http://localhost:3000']; // Add your frontend URLs here
-
-// CORS configuration
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Check if the origin is in the allowedOrigins list
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-      callback(null, true); // Allow request
-    } else {
-      callback(new Error('Not allowed by CORS'), false); // Reject request
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow specific methods
-  allowedHeaders: ['Content-Type', 'Authorization'], // Allow specific headers
-};
-
 // Apply CORS middleware
-app.use(cors(corsOptions));
+app.use(cors(
+    {
+        origin: 'https://cheatheon.vercel.app/'
+    }
+));
 
 // Middleware
 app.use(express.json());
