@@ -1,8 +1,7 @@
 # Ignore node_modules folder
-./node_modules
+./backend/node_modules
 ../node_modules
-/node_modules
-
+node_modules
 # Ignore virtual environment folder
 /venv
 
