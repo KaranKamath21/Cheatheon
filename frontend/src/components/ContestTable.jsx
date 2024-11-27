@@ -10,27 +10,30 @@ const ContestTable = () => {
     const [currentPage, setCurrentPage] = useState(0);
     const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
     const [searchTerm, setSearchTerm] = useState('');
+    const [loading, setLoading] = useState(true); // New state for loading
     const contestsPerPage = 10;
+    const backendURL = process.env.REACT_APP_BACKEND_URL;
 
     useEffect(() => {
         const fetchContests = async () => {
+            setLoading(true); // Show loading spinner
             try {
-                const response = await axios.get('https://cheatheon.onrender.com/api/contests');
-                
+                const response = await axios.get(`${backendURL}/api/contests`);
                 // Parse contest_date as Date objects and sort
                 const sortedData = response.data.sort((a, b) => {
                     const dateA = new Date(a.contest_date);
                     const dateB = new Date(b.contest_date);
                     return dateB - dateA; // Sort in ascending order
                 });
-                
                 setContests(sortedData);
             } catch (error) {
                 console.error('Error fetching contests:', error);
+            } finally {
+                setLoading(false); // Hide loading spinner
             }
         };
         fetchContests();
-    }, []);
+    }, [backendURL]);
 
     const sortedContests = () => {
         if (!sortConfig.key) {
@@ -87,63 +90,75 @@ const ContestTable = () => {
                     </button>
                 </div>
 
-                <div className="search-container">
-                    <input
-                        type="text"
-                        placeholder="Search contest..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                </div>
+                {loading ? (
+                    <div className="loading-container">
+                        <p>Loading contests, please wait...</p>
+                        {/* Optionally, you can replace the text with a spinner */}
+                        <div className="spinner"></div>
+                    </div>
+                ) : (
+                    <>
+                        <div className="search-container">
+                            <input
+                                type="text"
+                                placeholder="Search contest..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
 
-                <div className="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th onClick={() => requestSort('contest_name')}>Contest Name</th>
-                                <th onClick={() => requestSort('contest_date')}>Contest Date</th>
-                                <th>Contest Link</th>
-                                <th>Question 3</th>
-                                <th>Question 4</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {currentContests.map((contest) => (
-                                <tr key={contest._id}>
-                                    <td>{contest.contest_name}</td>
-                                    <td>{contest.contest_date}</td>
-                                    <td>
-                                        <a href={contest.contest_link} target="_blank" rel="noopener noreferrer">
-                                            View Contest
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <Link to={`/questions/${contest.question_3}`}>Question 3</Link>
-                                    </td>
-                                    <td>
-                                        <Link to={`/questions/${contest.question_4}`}>Question 4</Link>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-                <div className="records-info">
-                    Displaying {offset + 1} to {Math.min(offset + contestsPerPage, filteredContests.length)} of {filteredContests.length} Records
-                </div>
+                        <div className="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th onClick={() => requestSort('contest_name')}>Contest Name</th>
+                                        <th onClick={() => requestSort('contest_date')}>Contest Date</th>
+                                        <th>Contest Link</th>
+                                        <th>Question 3</th>
+                                        <th>Question 4</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {currentContests.map((contest) => (
+                                        <tr key={contest._id}>
+                                            <td>{contest.contest_name}</td>
+                                            <td>{contest.contest_date}</td>
+                                            <td>
+                                                <a href={contest.contest_link} target="_blank" rel="noopener noreferrer">
+                                                    View Contest
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <Link to={`/questions/${contest.question_3}`}>Question 3</Link>
+                                            </td>
+                                            <td>
+                                                <Link to={`/questions/${contest.question_4}`}>Question 4</Link>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div className="records-info">
+                            Displaying {offset + 1} to {Math.min(offset + contestsPerPage, filteredContests.length)} of {filteredContests.length} Records
+                        </div>
+                    </>
+                )}
             </div>
 
-            <ReactPaginate
-                previousLabel={"← Previous"}
-                nextLabel={"Next →"}
-                pageCount={Math.ceil(filteredContests.length / contestsPerPage)}
-                onPageChange={handlePageClick}
-                containerClassName={"pagination"}
-                previousLinkClassName={"pagination__link"}
-                nextLinkClassName={"pagination__link"}
-                disabledClassName={"pagination__link--disabled"}
-                activeClassName={"pagination__link--active"}
-            />
+            {!loading && (
+                <ReactPaginate
+                    previousLabel={"← Previous"}
+                    nextLabel={"Next →"}
+                    pageCount={Math.ceil(filteredContests.length / contestsPerPage)}
+                    onPageChange={handlePageClick}
+                    containerClassName={"pagination"}
+                    previousLinkClassName={"pagination__link"}
+                    nextLinkClassName={"pagination__link"}
+                    disabledClassName={"pagination__link--disabled"}
+                    activeClassName={"pagination__link--active"}
+                />
+            )}
 
             <footer className="footer">
                 <div className="social-links">
