@@ -34,7 +34,7 @@ const validateEmailRequest = (req, res, next) => {
     next();
 };
 
-router.post('/send-email', validateEmailRequest, (req, res) => {
+router.post('/', validateEmailRequest, (req, res) => {
     const { name, email, message } = req.body;
 
     const mailOptions = {
