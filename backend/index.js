@@ -10,11 +10,11 @@ const corsOptions = {
     origin: [
         'http://localhost:3000',
         'http://localhost:5000',
-        'https://cheatheon.vercel.app/'
-        
+        'https://cheatheon.vercel.app'
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true // Enable credentials if needed for cookies or authentication
 };
 
 // Middleware
@@ -24,19 +24,16 @@ app.use(express.json());
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).send('Something broke!');
+    res.status(500).json({ error: 'Internal Server Error' });
 });
 
 // MongoDB connection
-mongoose.connect(process.env.MONGO_URI, { 
-    useNewUrlParser: true, 
-    useUnifiedTopology: true 
-})
-.then(() => console.log('MongoDB connected'))
-.catch(err => {
-    console.error('MongoDB connection error:', err);
-    process.exit(1); // Exit process with failure
-});
+mongoose.connect(process.env.MONGO_URI)
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => {
+        console.error('MongoDB connection error:', err);
+        process.exit(1); // Exit the process with failure
+    });
 
 // Routes
 const contestRoutes = require('./routes/contests');
@@ -45,10 +42,10 @@ const emailRoute = require('./routes/mailer');
 
 app.use('/api/contests', contestRoutes);
 app.use('/api/questions', questionRoutes);
-app.use('/api', emailRoute);
+app.use('/api/send-email', emailRoute); // Ensure the correct path is used
 
-// 404 handler
-app.use((req, res, next) => {
+// 404 handler for unknown routes
+app.use((req, res) => {
     res.status(404).json({ message: 'Route not found' });
 });
 
