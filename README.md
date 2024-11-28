@@ -108,11 +108,11 @@ No additional steps are needed for data processing, just running this script wil
 
 Make sure your .gitignore is set up correctly to prevent committing unnecessary files like node_modules. Here is an example configuration:
 
-# Ignore node_modules in both frontend and backend
-frontend/node_modules/
-backend/node_modules/
+Ignore node_modules in both frontend and backend
+frontend/node_modules/  
+backend/node_modules/  
 
-# Ignore environment files
+Ignore environment files
 .env
 
 
@@ -120,8 +120,8 @@ backend/node_modules/
 
 ## Troubleshooting
 
-	•	Missing Dependencies: If you encounter issues with missing dependencies, try running npm install in both the frontend and backend directories or pip install -r requirements.txt in the data directory.
-	•	MongoDB Connection: Make sure your MongoDB instance is running and that you’ve correctly configured the MONGO_URL in the .env file.
+1. Missing Dependencies: If you encounter issues with missing dependencies, try running npm install in both the frontend and backend directories or pip install -r requirements.txt in the data directory.
+2. MongoDB Connection: Make sure your MongoDB instance is running and that you’ve correctly configured the MONGO_URL in the .env file.
 
 
 
