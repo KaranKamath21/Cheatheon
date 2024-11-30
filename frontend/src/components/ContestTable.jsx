@@ -138,11 +138,11 @@ const ContestTable = () => {
             <h1 className="h-class">Contest List</h1>
 
             <div className="page-container">
-                <div className="home-button-container">
+                {/* <div className="home-button-container">
                     <button className="home-button">
                         <Link to="/" className="home-link">Home</Link>
                     </button>
-                </div>
+                </div> */}
 
                 {loading ? (
                     <div className="loading-container">
